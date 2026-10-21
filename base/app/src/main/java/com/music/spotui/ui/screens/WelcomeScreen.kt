@@ -63,7 +63,7 @@ fun WelcomeScreen(onLogin: () -> Unit) {
                 modifier = Modifier.size(132.dp).clip(RoundedCornerShape(36.dp)).background(Color(0xFF181818)),
             )
             Spacer(Modifier.height(28.dp))
-            Text("Myspoti", color = Color.White, fontFamily = AppSans, fontWeight = FontWeight.ExtraBold, fontSize = 40.sp)
+            Text("Cadence", color = Color.White, fontFamily = AppSans, fontWeight = FontWeight.ExtraBold, fontSize = 40.sp)
             Text(
                 stringResource(R.string.welcome_tagline),
                 color = Color.White.copy(alpha = 0.7f), fontFamily = AppSans, fontSize = 17.sp, lineHeight = 24.sp,

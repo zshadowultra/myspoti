@@ -19,14 +19,14 @@ android {
     compileSdk = 37
 
     // Two channels that install side by side: betas ("2.0.0-beta.3") stay "app.myspoti",
-    // signed with the first key, as "Myspoti Beta"; releases are "app.myspoti.stable",
-    // signed with their own key, as "Myspoti".
+    // signed with the first key, as "Cadence Beta"; releases are "app.myspoti.stable",
+    // signed with their own key, as "Cadence".
     // Local builds (no version given) are on the beta side, like the phone test builds.
     val version = (findProperty("appVersionName") as String?) ?: "2.0.0"
     val beta = findProperty("appVersionName") == null || version.contains("-")
     defaultConfig {
         applicationId = if (beta) "app.myspoti" else "app.myspoti.stable"
-        manifestPlaceholders["appLabel"] = if (beta) "Myspoti Beta" else "Myspoti"
+        manifestPlaceholders["appLabel"] = if (beta) "Cadence Beta" else "Cadence"
         minSdk = 29
         targetSdk = 36
         // CI release builds pass the tag's version (-PappVersionName / -PappVersionCode).
@@ -72,7 +72,7 @@ android {
         debug {
             // Installs next to the release apps (own data, own sign-in).
             applicationIdSuffix = ".dev"
-            manifestPlaceholders["appLabel"] = "Myspoti dev"
+            manifestPlaceholders["appLabel"] = "Cadence dev"
         }
         release {
             // Real key when provided (CI releases); otherwise the debug key, so a local

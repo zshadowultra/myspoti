@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Myspoti</string>
+    <string name="app_name">Cadence</string>
     <string name="aa_playlists">Playlists</string>
     <string name="aa_albums">Alben</string>
     <string name="aa_artists">Künstler</string>
@@ -14,7 +14,7 @@
     <string name="settings_lyrics_style_bold">Groß und fett</string>
     <string name="main_update_available">Ein neues Update ist verfügbar</string>
     <string name="notif_channel_media_name">Medienwiedergabe</string>
-    <string name="notif_channel_media_description">Steuerung der Medienwiedergabe von Myspoti</string>
+    <string name="notif_channel_media_description">Steuerung der Medienwiedergabe von Cadence</string>
     <string name="notif_action_previous">Vorheriger</string>
     <string name="notif_action_next">Nächster</string>
     <string name="notif_action_play">Abspielen</string>

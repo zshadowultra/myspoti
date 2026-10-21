@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="app_name">Myspoti</string>
+    <string name="app_name">Cadence</string>
     <string name="aa_playlists">Playlists</string>
     <string name="aa_albums">Albums</string>
     <string name="aa_artists">Artistes</string>
@@ -15,7 +15,7 @@
     <string name="main_update_available">Une nouvelle mise à jour est disponible</string>
 
     <string name="notif_channel_media_name">Lecture média</string>
-    <string name="notif_channel_media_description">Commandes de lecture média Myspoti</string>
+    <string name="notif_channel_media_description">Commandes de lecture média Cadence</string>
     <string name="notif_action_previous">Précédent</string>
     <string name="notif_action_next">Suivant</string>
     <string name="notif_action_play">Lecture</string>

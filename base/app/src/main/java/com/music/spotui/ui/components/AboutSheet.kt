@@ -64,13 +64,16 @@ fun AboutSheet(onDismiss: () -> Unit) {
                     modifier = Modifier.size(56.dp).clip(RoundedCornerShape(14.dp)).background(Color(0xFF121212)),
                 )
                 Column(Modifier.padding(start = 14.dp)) {
-                    Text("Myspoti", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                    Text("Cadence", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
                     Text("${stringResource(R.string.settings_item_version_title)} ${BuildConfig.VERSION_NAME}",
                         color = Color(0xFFB3B3B3), fontSize = 13.sp)
                 }
             }
             Text(stringResource(R.string.about_free), color = Color(0xFFB3B3B3), fontSize = 13.sp,
                 modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 8.dp))
+            Text("Based on Myspoti by kota-zo · GPL-3.0", color = Color(0xFFB3B3B3), fontSize = 13.sp,
+                modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp))
+            AboutRow("Myspoti · original project", "kota-zo/myspoti") { openUrl(context, "https://github.com/kota-zo/myspoti") }
             AboutRow(stringResource(R.string.about_discord), stringResource(R.string.about_discord_detail)) { openUrl(context, DISCORD_URL) }
             AboutRow(stringResource(R.string.about_github), stringResource(R.string.about_github_detail)) { openUrl(context, "https://github.com/$repo") }
             Text(stringResource(R.string.support_body), color = Color(0xFFB3B3B3), fontSize = 13.sp,

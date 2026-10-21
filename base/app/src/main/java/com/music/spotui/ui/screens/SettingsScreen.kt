@@ -421,7 +421,7 @@ private fun CheckUpdateRow() {
 private fun shareDiagnosticReport(context: android.content.Context, file: java.io.File) {
     val send = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
         type = "text/plain"
-        putExtra(android.content.Intent.EXTRA_SUBJECT, "Myspoti diagnostic report")
+        putExtra(android.content.Intent.EXTRA_SUBJECT, "Cadence diagnostic report")
     }
     val uri = runCatching {
         androidx.core.content.FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
@@ -431,7 +431,7 @@ private fun shareDiagnosticReport(context: android.content.Context, file: java.i
         send.putExtra(android.content.Intent.EXTRA_STREAM, uri)
         send.addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
     } else {
-        send.putExtra(android.content.Intent.EXTRA_TEXT, "Myspoti diagnostic report: ${file.absolutePath}")
+        send.putExtra(android.content.Intent.EXTRA_TEXT, "Cadence diagnostic report: ${file.absolutePath}")
     }
     context.startActivity(android.content.Intent.createChooser(send, null).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK))
 }
