@@ -480,6 +480,9 @@ class SpotifyPlayer(private val bridge: Bridge, private val scope: CoroutineScop
 
     /** Spotify refused the last play: once, the list is played from its start instead. */
     private fun onRefused() {
+        // The relay reports refusals for pause/seek as well as play (#55). A late
+        // failure must not restart a context after the user has paused it (#13).
+        if (pausedByUser) return
         val last = lastPlay ?: return
         if (System.currentTimeMillis() - last.third > REFUSED_WINDOW_MS) return
         if (refusedRetried || last.second == null) { _refused.tryEmit(Unit); return }
