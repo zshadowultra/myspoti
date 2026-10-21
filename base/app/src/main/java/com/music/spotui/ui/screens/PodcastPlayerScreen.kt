@@ -36,7 +36,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -151,7 +150,7 @@ fun PodcastPlayerScreen(navController: NavController) {
     Box(
         Modifier
             .fillMaxSize()
-            .background(Brush.verticalGradient(listOf(tint, AppBackground))),
+            .background(tint),
     ) {
         Column(Modifier.fillMaxSize().statusBarsPadding()) {
             // Top bar: down chevron, "playing from the podcast", the episode's own menu.

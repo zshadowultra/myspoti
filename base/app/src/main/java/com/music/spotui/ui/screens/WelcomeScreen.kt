@@ -18,8 +18,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -42,13 +40,6 @@ fun WelcomeScreen(onLogin: () -> Unit) {
         Modifier
             .fillMaxSize()
             .background(AppBackground)
-            .background(
-                Brush.radialGradient(
-                    colors = listOf(Color(0x551ED760), Color.Transparent),
-                    center = Offset(540f, 380f),
-                    radius = 1100f,
-                ),
-            )
             .systemBarsPadding()
             .padding(horizontal = 28.dp, vertical = 24.dp),
     ) {

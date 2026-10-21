@@ -53,7 +53,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
@@ -202,16 +201,12 @@ fun HomeFeedContent(navController: NavController, feed: HomeFeedModel, facet: St
     ) {
         // Sticky filter row: content scrolls underneath it, like the official app.
         stickyHeader {
-            // Fade (not a solid band): opaque under the status bar, transparent at the bottom.
+            // Flat opaque header: content behind it never competes with the labels.
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(
-                        Brush.verticalGradient(
-                            0f to Color(AppBackground.toArgb()),
-                            0.55f to Color(AppBackground.toArgb()).copy(alpha = 0.85f),
-                            1f to Color.Transparent,
-                        )
+                        Color(AppBackground.toArgb())
                     )
                     .statusBarsPadding()
                     .padding(bottom = 10.dp)

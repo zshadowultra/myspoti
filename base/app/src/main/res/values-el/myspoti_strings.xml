@@ -241,8 +241,8 @@
     <string name="downloads_verify_hint">Καμία lossless πηγή δεν απάντησε. Επαλήθευσε μία φορά το SpotiFLAC στις Ρυθμίσεις, Λήψεις: οι διακομιστές του είναι οι αξιόπιστοι.</string>
     <string name="quality_download_small">Μικρότερη</string>
     <string name="quality_download_small_detail">AAC 96 kbit/s, η ελαφρύτερη: περίπου 3 MB ανά τραγούδι</string>
-    <string name="settings_solid_nav_title">Συμπαγής κάτω μπάρα</string>
-    <string name="settings_solid_nav_detail">Μαύρο πίσω από τις καρτέλες, αντί για σβήσιμο πάνω από τη λίστα</string>
+    <string name="settings_solid_nav_title">Μαύρη κάτω μπάρα</string>
+    <string name="settings_solid_nav_detail">Καθαρό μαύρο πίσω από τις καρτέλες αντί για συμπαγές σκούρο γκρι</string>
     <string name="quality_download_ask">Ρώτα κάθε φορά</string>
     <string name="quality_download_ask_detail">Επίλεξε πότε ξεκινά μια λήψη, μία φορά για ολόκληρη playlist</string>
     <string name="quality_sheet_title">Ποιότητα ήχου</string>

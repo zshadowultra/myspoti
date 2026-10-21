@@ -50,7 +50,6 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.layout.ContentScale
@@ -447,7 +446,7 @@ private fun ContextContent(navController: NavController, vm: ContextViewModel, p
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Brush.verticalGradient(listOf(lerp(tint, Color.Black, 0.25f), PageBackground)))
+                    .background(lerp(tint, Color.Black, 0.25f))
                     .statusBarsPadding()
             ) {
                 Box(
@@ -774,14 +773,14 @@ private fun TrackRow(
     }
 }
 
-/** The Liked Songs artwork: purple-to-blue gradient with a white heart. */
+/** The Liked Songs artwork: flat purple with a white heart. */
 @Composable
 private fun LikedCover(modifier: Modifier) {
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
             .clip(RoundedCornerShape(4.dp))
-            .background(Brush.linearGradient(listOf(Color(0xFF450AF5), Color(0xFF8E8EE5), Color(0xFFC4EFD9)))),
+            .background(Color(0xFF450AF5)),
     ) {
         Icon(Icons.Default.Favorite, contentDescription = null, tint = Color.White, modifier = Modifier.fillMaxWidth(0.4f).aspectRatio(1f))
     }

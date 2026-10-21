@@ -241,8 +241,8 @@
     <string name="downloads_verify_hint">Keine verlustfreie Quelle hat geantwortet. Verifiziere SpotiFLAC einmal in den Einstellungen unter Downloads: Dessen Server sind die zuverlässigen.</string>
     <string name="quality_download_small">Kleinste</string>
     <string name="quality_download_small_detail">AAC 96 kbit/s, am leichtesten: etwa 3 MB pro Song</string>
-    <string name="settings_solid_nav_title">Feste untere Leiste</string>
-    <string name="settings_solid_nav_detail">Schwarz hinter den Tabs, statt eines Verlaufs über der Liste</string>
+    <string name="settings_solid_nav_title">Schwarze untere Leiste</string>
+    <string name="settings_solid_nav_detail">Reines Schwarz hinter den Tabs statt einfarbigem Dunkelgrau</string>
     <string name="quality_download_ask">Jedes Mal fragen</string>
     <string name="quality_download_ask_detail">Wähle, wann ein Download startet, einmal für eine ganze Playlist</string>
     <string name="quality_sheet_title">Klangqualität</string>

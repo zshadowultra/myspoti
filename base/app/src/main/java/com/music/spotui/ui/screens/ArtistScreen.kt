@@ -50,7 +50,6 @@ import com.music.spotui.ui.components.SongOptionsSheet
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
@@ -214,13 +213,7 @@ private fun ArtistOverviewContent(
                 Box(modifier = Modifier
                     .fillMaxSize()
                     .background(
-                        Brush.verticalGradient(
-                            colors = listOf(
-                                Color.Black.copy(alpha = 0.35f),
-                                Color.Transparent,
-                                Color(AppBackground.toArgb()),
-                            ),
-                        )
+                        Color.Black.copy(alpha = 0.35f)
                     )
                 )
                 Box(
@@ -380,7 +373,7 @@ private fun ArtistOverviewContent(
                     Box(
                         contentAlignment = Alignment.Center,
                         modifier = Modifier.size(52.dp).clip(RoundedCornerShape(4.dp))
-                            .background(Brush.linearGradient(listOf(Color(0xFF450AF5), Color(0xFF8E8EE5), Color(0xFFC4EFD9)))),
+                            .background(Color(0xFF450AF5)),
                     ) {
                         androidx.compose.material3.Icon(Icons.Default.Favorite, contentDescription = null, tint = Color.White, modifier = Modifier.size(22.dp))
                     }

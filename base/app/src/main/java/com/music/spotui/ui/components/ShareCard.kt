@@ -5,10 +5,8 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
-import android.graphics.LinearGradient
 import android.graphics.Paint
 import android.graphics.RectF
-import android.graphics.Shader
 import android.graphics.Typeface
 import android.text.Layout
 import android.text.StaticLayout
@@ -73,10 +71,8 @@ object ShareCard {
             val tiny = Bitmap.createScaledBitmap(cover, 16, 16, true)
             c.drawBitmap(tiny, null, RectF(-200f, -200f, W + 200f, H + 200f), paint)
         }
-        paint.shader = LinearGradient(0f, 0f, 0f, H.toFloat(),
-            intArrayOf(Color.argb(120, 0, 0, 0), Color.argb(170, 0, 0, 0), Color.argb(230, 0, 0, 0)), null, Shader.TileMode.CLAMP)
+        paint.color = Color.argb(170, 0, 0, 0)
         c.drawRect(0f, 0f, W.toFloat(), H.toFloat(), paint)
-        paint.shader = null
 
         // Cover: large, centred, rounded.
         val side = 840f

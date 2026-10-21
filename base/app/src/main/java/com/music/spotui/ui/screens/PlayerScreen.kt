@@ -89,7 +89,6 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -312,16 +311,8 @@ fun PlayerScreen(navController: NavController) {
             .graphicsLayer { translationY = pullToClose.offset }
             .fillMaxSize()
             .background(
-                // The tint follows the cover in BOTH modes: AMOLED used to be pure black, and the
-                // colour was asked for anyway (that replaces the halo idea). The screen keeps its
-                // gradient, the toggle still governs the rest of the app.
-                Brush.verticalGradient(
-                    colors = listOf(
-                        androidx.compose.ui.graphics.lerp(dominentColor, Color.Black, 0.35f),
-                        Color(0xFF121212),
-                    ),
-                    startY = 0f
-                )
+                // Flat cover tint in both modes; AMOLED still governs the rest of the app.
+                androidx.compose.ui.graphics.lerp(dominentColor, Color.Black, 0.35f)
             )
     ) {
         val pillAboveTitle = canvasUrl != null && !videoOn
@@ -341,14 +332,7 @@ fun PlayerScreen(navController: NavController) {
                     // compact strip needs something to sit on.
                     .alpha(canvasAlpha * if (immersive) 0.35f else 1f)
                     .background(
-                        Brush.verticalGradient(
-                            colors = listOf(
-                                Color.Black.copy(alpha = 0.60f),
-                                Color.Black.copy(alpha = 0.25f),
-                                Color.Black.copy(alpha = 0.50f),
-                                Color.Black.copy(alpha = 0.85f),
-                            )
-                        )
+                        Color.Black.copy(alpha = 0.60f)
                     )
             )
         }
@@ -636,7 +620,7 @@ private fun ImmersiveStrip(
             .pointerInput(Unit) { detectTapGestures(onTap = {}) }
             .background(
                 // Scrim only under the strip: the artwork above stays untouched.
-                Brush.verticalGradient(listOf(Color.Transparent, Color.Black.copy(alpha = 0.72f)))
+                Color.Black.copy(alpha = 0.72f)
             )
             .padding(horizontal = 16.dp, vertical = 10.dp),
     ) {

@@ -241,8 +241,8 @@
     <string name="downloads_verify_hint">Nenhuma fonte sem perdas respondeu. Verifica uma vez o SpotiFLAC em Definições, Transferências: os seus servidores são os fiáveis.</string>
     <string name="quality_download_small">Mais pequena</string>
     <string name="quality_download_small_detail">AAC 96 kbit/s, a mais leve: cerca de 3 MB por música</string>
-    <string name="settings_solid_nav_title">Barra inferior opaca</string>
-    <string name="settings_solid_nav_detail">Preta por trás dos separadores, em vez de um esbatido sobre a lista</string>
+    <string name="settings_solid_nav_title">Barra inferior preta</string>
+    <string name="settings_solid_nav_detail">Preto puro por trás dos separadores em vez de cinzento escuro uniforme</string>
     <string name="quality_download_ask">Perguntar sempre</string>
     <string name="quality_download_ask_detail">Escolher quando começa uma transferência, uma vez para uma playlist inteira</string>
     <string name="quality_sheet_title">Qualidade do som</string>

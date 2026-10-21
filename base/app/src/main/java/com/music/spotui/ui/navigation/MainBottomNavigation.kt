@@ -34,7 +34,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -114,17 +113,10 @@ fun MainBottomNavigation(navController: NavHostController, bottomBarState: Mutab
                 contentAlignment = Alignment.BottomCenter,
                 modifier = Modifier
                     .fillMaxWidth()
-                    // Settings, Display: the fade over the list (the default), or solid black (from #15).
+                    // Flat dark grey by default; Display can select pure black.
                     .then(
                         if (com.music.spotui.data.preferences.SolidNavBar.on) Modifier.background(Color.Black)
-                        // Like the official bar: clear above the mini player, near-opaque by the tab icons,
-                        // so covers scrolling underneath never compete with the labels.
-                        else Modifier.background(Brush.verticalGradient(
-                            0f to Color.Transparent,
-                            0.3f to Color.Black.copy(alpha = 0.7f),
-                            0.6f to Color.Black.copy(alpha = 0.92f),
-                            1f to Color.Black,
-                        ))
+                        else Modifier.background(Color(0xFF121212))
                     )
             ) {
 

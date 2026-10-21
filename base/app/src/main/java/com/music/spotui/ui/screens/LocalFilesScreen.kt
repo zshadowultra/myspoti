@@ -38,7 +38,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -109,7 +108,7 @@ fun LocalFilesScreen(navController: NavController) {
             else -> LazyColumn(Modifier.fillMaxSize()) {
                 item {
                     Column(
-                        Modifier.fillMaxWidth().background(Brush.verticalGradient(listOf(Color(0xFF2E5C46), AppBackground)))
+                        Modifier.fillMaxWidth().background(Color(0xFF2E5C46))
                             .statusBarsPadding().padding(horizontal = 16.dp),
                     ) {
                         Spacer(Modifier.height(56.dp))

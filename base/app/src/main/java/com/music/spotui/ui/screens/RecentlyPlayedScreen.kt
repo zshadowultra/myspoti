@@ -37,7 +37,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
@@ -331,7 +330,7 @@ private fun RecentCover(context: RecentItem, size: Dp) {
         if (context.uri == LIKED_URI || context.kind == MediaKind.COLLECTION) {
             Box(
                 Modifier.align(Alignment.BottomStart).size(22.dp).clip(RoundedCornerShape(6.dp))
-                    .background(Brush.linearGradient(listOf(Color(0xFF8E7CFF), Color(0xFFC9B8FF)))),
+                    .background(Color(0xFF8E7CFF)),
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(
