@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Myspoti launcher mark: one rounded wave line (adaptive-icon safe zone). -->
+<!-- Generated from Wikimedia's Spotify logo; see docs/assets/README.md. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp" android:height="108dp"
     android:viewportWidth="108" android:viewportHeight="108">
-    <path android:pathData="M27.25,55.11 L27.25,60.64 A4.95,4.95 0 0 0 37.15,60.64 L37.15,45.97 A5.67,5.67 0 0 1 48.5,45.97 L48.5,62.72 A5.12,5.12 0 0 0 58.74,62.72 L58.74,52.89 A5.36,5.36 0 0 1 69.47,52.89 L69.47,58.57 Q69.47,65.07 75.97,65.07 L80.96,65.07" android:strokeColor="#FF9E3D" android:strokeWidth="6.44"
-        android:strokeLineCap="round" android:strokeLineJoin="round" android:fillColor="#00000000" />
+    <group android:scaleX="0.392857142857" android:scaleY="0.392857142857"
+        android:translateX="21" android:translateY="21">
+        <path android:fillColor="#1DB954" android:pathData="M83.996,0.277c-46.249 0-83.743 37.493-83.743 83.742 0 46.251 37.494 83.741 83.743 83.741 46.254 0 83.744-37.49 83.744-83.741 0-46.246-37.49-83.738-83.745-83.738l0.001-0.004z" />
+        <path android:fillColor="#000000" android:pathData="M122.400,121.057c-1.5 2.46-4.72 3.24-7.18 1.73-19.662-12.01-44.414-14.73-73.564-8.07-2.809 0.64-5.609-1.12-6.249-3.93-0.643-2.81 1.11-5.61 3.926-6.25 31.9-7.291 59.263-4.15 81.337 9.34 2.46 1.51 3.24 4.72 1.73 7.18z" />
+        <path android:fillColor="#000000" android:pathData="M132.650,98.252c-1.89 3.075-5.91 4.045-8.98 2.155-22.51-13.839-56.823-17.846-83.448-9.764-3.453 1.043-7.1-0.903-8.148-4.35-1.04-3.453 0.907-7.093 4.354-8.143 30.413-9.228 68.222-4.758 94.072 11.127 3.07 1.89 4.04 5.91 2.15 8.976v-0.001z" />
+        <path android:fillColor="#000000" android:pathData="M133.530,74.508c-26.99-16.031-71.52-17.505-97.289-9.684-4.138 1.255-8.514-1.081-9.768-5.219-1.254-4.14 1.08-8.513 5.221-9.771 29.581-8.98 78.756-7.245 109.83 11.202 3.73 2.209 4.95 7.016 2.74 10.733-2.2 3.722-7.02 4.949-10.73 2.739z" />
+    </group>
 </vector>
