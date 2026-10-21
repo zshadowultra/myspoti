@@ -1,0 +1,50 @@
+name: Sync upstream
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"
+  workflow_dispatch:
+
+# Do not overlap two merges of main; a concurrent human push still fails safely.
+concurrency:
+  group: sync-upstream-main
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write  # GITHUB_TOKEN pushes do not trigger Android's push workflow.
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Merge upstream main
+        id: merge
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote add upstream https://github.com/kota-zo/myspoti.git
+          git fetch upstream main
+          if git merge-base --is-ancestor upstream/main HEAD; then
+            echo "Already up to date."
+            exit 0
+          fi
+          if ! git merge --no-ff --no-edit upstream/main; then
+            echo "::error::Upstream merge failed. Resolve conflicts on main manually; no changes were pushed."
+            git status --short
+            exit 1
+          fi
+          git push origin HEAD:main
+          echo "updated=true" >> "$GITHUB_OUTPUT"
+
+      # Explicit dispatch is allowed with GITHUB_TOKEN and builds the pushed main.
+      - name: Build updated APK
+        if: steps.merge.outputs.updated == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh workflow run android.yml --repo "$GITHUB_REPOSITORY" --ref main
