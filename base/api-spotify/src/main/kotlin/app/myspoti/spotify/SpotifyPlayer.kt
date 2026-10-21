@@ -131,8 +131,9 @@ class SpotifyPlayer(private val bridge: Bridge, private val scope: CoroutineScop
                     runCatching { if (lost != null) resumeAfterReload(lost) else { delay(RESTORE_GAP_MS); playIntent() } }
                 }
                 if (audioQuality != "auto") applyAudioQuality()
-                // The page keeps its volume: an app closed during a muted ad must not stay silent.
-                runCatching { if (volume() == 0.0) setVolume(wantedVolume?.takeIf { v -> v > 0.0 } ?: 1.0) }
+                // Repair only a lost local fade/mute, never Spotify Connect's volume:
+                // zero there can be a deliberate mute on another device (#43, #54).
+                runCatching { restoreLocalVolume() }
                 // A reloaded page during an ad break plays the ad again: muted again at once.
                 if (_adPlaying.value) muteForAd()
             }
@@ -461,16 +462,17 @@ class SpotifyPlayer(private val bridge: Bridge, private val scope: CoroutineScop
             bridge.logger?.invoke("media element muted during a song: unmuted")
             runCatching { bridge.call("media.mute", buildJsonObject { put("on", false) }) }
         }
-        val wanted = wantedVolume ?: 1.0
-        if (wanted <= 0.0) return
-        // The page's own volume is read with the media element (one call, no second round trip).
-        val v = media?.playerVolume ?: runCatching { volume() }.getOrNull() ?: return
-        if (v <= 0.0) {
-            bridge.logger?.invoke("page silent during a song: volume back to $wanted")
-            runCatching { setVolume(wanted) }
-        }
-        // A fade that never came back: the element back to the page player's own volume.
-        if (media != null && media.active != false && media.own > 0.001 && media.level < media.own * 0.5) {
+        // Only the local element belongs to this guard. Spotify's player volume of zero
+        // may be intentional (including a remote Connect mute), not a lost fade.
+        restoreLocalVolume(media)
+    }
+
+    /** Repairs a local element left below its player's intended level after a reload. */
+    internal suspend fun restoreLocalVolume() = restoreLocalVolume(readMedia())
+
+    private suspend fun restoreLocalVolume(media: Media?) {
+        if (media == null || media.active != true || wantedVolume == 0.0 || _adPlaying.value || adMuted) return
+        if (media.own > 0.001 && media.level < media.own * 0.5) {
             bridge.logger?.invoke("page player silent during a song: level ${media.level} back to ${media.own}")
             runCatching { restoreLevel() }
         }
