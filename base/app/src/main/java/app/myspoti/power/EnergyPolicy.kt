@@ -4,7 +4,7 @@ package app.myspoti.power
 data class EnergyPolicy(
     val saverEnabled: Boolean = false,
     val oledBlack: Boolean = false,
-    val allowCanvas: Boolean = true,
+    val allowCanvas: Boolean = false,
     val videoMaxHeight: Int = 1080,
     val allowBackgroundLookups: Boolean = true,
     val progressFps: Int = 30,
@@ -16,7 +16,7 @@ data class EnergyPolicy(
          * Only the app's own switch turns the saver on: Android's battery saver is not
          * followed (it already lowers the screen's refresh rate by itself).
          */
-        fun resolve(manualSaver: Boolean, blackPreference: Boolean, canvasEnabled: Boolean = true): EnergyPolicy {
+        fun resolve(manualSaver: Boolean, blackPreference: Boolean, canvasEnabled: Boolean = false): EnergyPolicy {
             val saver = manualSaver
             return EnergyPolicy(
                 saverEnabled = saver,
@@ -36,7 +36,7 @@ data class EnergyState(
     /** AMOLED appearance stays user-controlled while saver limits visual work. */
     val blackPreference: Boolean = false,
     /** The user's Canvas switch (Settings), independent of the saver. */
-    val canvasEnabled: Boolean = true,
+    val canvasEnabled: Boolean = false,
 ) {
     val policy: EnergyPolicy get() = EnergyPolicy.resolve(manualSaver, blackPreference, canvasEnabled)
 }

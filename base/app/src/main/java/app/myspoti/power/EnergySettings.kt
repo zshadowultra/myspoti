@@ -49,7 +49,7 @@ object EnergySettings {
         val next = EnergyState(
             manualSaver = preferences?.getBoolean("manual_saver", false) == true,
             blackPreference = preferences?.getBoolean("black_background", false) == true,
-            canvasEnabled = preferences?.getBoolean("canvas", true) != false,
+            canvasEnabled = preferences?.getBoolean("canvas", false) == true,
         )
         mutableState.value = next
         oledBlack = next.policy.oledBlack
