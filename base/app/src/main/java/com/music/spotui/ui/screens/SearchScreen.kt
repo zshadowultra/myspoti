@@ -1,5 +1,7 @@
 package com.music.spotui.ui.screens
 
+import app.myspoti.api.best
+
 import kotlinx.coroutines.launch
 import com.music.spotui.ui.components.pressable
 import androidx.compose.ui.res.stringResource
@@ -312,7 +314,7 @@ fun SumUpSearchScreen(
             if (filter == SearchFilter.Profiles) {
                 items(profiles.size) { i ->
                     val u = profiles[i]
-                    SearchProfileRow(u.title, u.images.firstOrNull()?.url) {
+                    SearchProfileRow(u.title, u.images.best(300)?.url) {
                         navController.navigate(com.music.spotui.ui.navigation.profileRoute(u.uri.substringAfterLast(':'), u.title))
                     }
                 }
@@ -758,7 +760,7 @@ fun BrowseAllSection(onCategoryClick: (genre: String, title: String) -> Unit) {
         value = listOf(BrowseTile(NEW_RELEASES_GENRE, newReleases, Color(0xFFE8115B), "")) +
             categories.filter { com.music.spotui.data.api.Features.PODCASTS || !it.title.contains("odcast", ignoreCase = true) }.map { c ->
                 val color = runCatching { Color(android.graphics.Color.parseColor(c.color ?: "#333333")) }.getOrDefault(Color(0xFF333333))
-                BrowseTile(c.uri, c.title, color, c.images.firstOrNull()?.url.orEmpty())
+                BrowseTile(c.uri, c.title, color, c.images.best(300)?.url.orEmpty())
             }
     }
     Column(modifier = Modifier.fillMaxWidth()) {

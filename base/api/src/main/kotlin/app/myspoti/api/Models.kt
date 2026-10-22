@@ -5,9 +5,10 @@ typealias Uri = String
 
 data class Image(val url: String, val width: Int? = null, val height: Int? = null)
 
-/** Picks the smallest image at least [minPx] wide, or the largest one. */
+/** Picks the smallest adequate variant, then the largest usable fallback; never stretches a 64px thumbnail into artwork. */
 fun List<Image>.best(minPx: Int): Image? =
-    filter { (it.width ?: 0) >= minPx }.minByOrNull { it.width ?: 0 } ?: maxByOrNull { it.width ?: 0 }
+    filter { (it.width ?: 0) >= minPx }.minByOrNull { it.width ?: 0 }
+        ?: filter { it.width == null || it.width > 64 || minPx <= 64 }.maxByOrNull { it.width ?: 0 }
 
 data class ArtistRef(val uri: Uri, val name: String)
 

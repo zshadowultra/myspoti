@@ -115,7 +115,8 @@
 
   const image = images => {
     if (!images || !images.length) return null;
-    return [...images].sort((a, b) => (b.width || 0) - (a.width || 0))[0].url;
+    return [...images].filter(i => !i.width || i.width > 64)
+      .sort((a, b) => (b.width || 0) - (a.width || 0))[0]?.url || null;
   };
 
   // Ads come in the same queue as tracks, with `type: "ad"` and a title instead of a name.
