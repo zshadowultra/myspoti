@@ -15,6 +15,9 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import org.json.JSONObject
 import java.io.IOException
+import java.util.concurrent.ArrayBlockingQueue
+import java.util.concurrent.RejectedExecutionException
+import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
 
 /**
@@ -63,7 +66,7 @@ internal class ControlRelay(private val view: WebView, private val fingerprint: 
         .build()
 
     fun install() {
-        view.exposeToPlayer("MyspotiNet", ::onMessage)
+        view.exposeToPlayer("MyspotiNet", ::dispatchMessage)
         val documentStart = androidx.webkit.WebViewFeature.isFeatureSupported(androidx.webkit.WebViewFeature.DOCUMENT_START_SCRIPT)
         if (documentStart) androidx.webkit.WebViewCompat.addDocumentStartJavaScript(view, SCRIPT, setOf("https://open.spotify.com"))
         Logbook.log("control relay installed (document start: $documentStart)")
@@ -108,6 +111,24 @@ internal class ControlRelay(private val view: WebView, private val fingerprint: 
                 ?: android.provider.Settings.Secure.getString(resolver, key)
         }.getOrNull()?.takeIf { it.isNotBlank() }
         setting("device_name") ?: setting("bluetooth_name") ?: android.os.Build.MODEL.ifBlank { "Spotify" }
+    }
+
+    /** No parsing, registration rewriting or Settings IO on the WebView callback thread. */
+    private fun dispatchMessage(json: String) {
+        try {
+            preparation.execute { runCatching { onMessage(json) }.onFailure {
+                Logbook.log("relay preparation failed: ${it.javaClass.simpleName}")
+                rejectMessage(json)
+            } }
+        } catch (_: RejectedExecutionException) {
+            Logbook.log("relay preparation queue full")
+            rejectMessage(json)
+        }
+    }
+
+    private fun rejectMessage(json: String) {
+        val id = runCatching { JSONObject(json).optInt("id", -1) }.getOrDefault(-1)
+        if (id >= 0) reply(id, 0, "{}", "")
     }
 
     /** `{id, url, method, headers, body}` from the page's wrapped `fetch`. */
@@ -215,6 +236,13 @@ internal class ControlRelay(private val view: WebView, private val fingerprint: 
     private fun shortPath(url: String) = url.substringBefore('?').substringAfter(".com").replace(Regex("[0-9a-f]{20,}"), "…")
 
     companion object {
+        // Shared across renderer rebuilds: bounded work and no per-WebView thread leak.
+        private val preparation = ThreadPoolExecutor(
+            1, 1, 30, TimeUnit.SECONDS, ArrayBlockingQueue(128),
+            { task -> Thread(task, "spotify-relay-preparation").apply { isDaemon = true } },
+            ThreadPoolExecutor.AbortPolicy(),
+        ).apply { allowCoreThreadTimeOut(true) }
+
         /**
          * The page's own API calls. Every request the WebView makes carries
          * "X-Requested-With: <our package>" — no browser does that, and it was measured on the wire
