@@ -84,6 +84,16 @@ class Bridge(private val host: BridgeHost, scope: CoroutineScope) {
         // collector (state refresh, web token, audio quality, volume) runs twice. The page
         // re-announces only when the host is not ready (a page it thought it had lost).
         host.evaluate("window.__mspReannounce = ${!_ready.value}; ${BridgeScript.source}")
+        // A separate evaluation still runs if parsing the source above failed (CSP/script-tag
+        // injection is never used). Services may take 60 s; the bootstrap itself must exist now.
+        host.evaluate("""
+            if (!window.Myspoti || window.Myspoti.version !== 1) {
+              const message = JSON.stringify({type: 'error', error: 'bridge bootstrap missing'});
+              if (window.MyspotiHost) window.MyspotiHost.postMessage(message);
+              else if (window.__mspHostPost) window.__mspHostPost(message);
+              console.error('Myspoti bridge bootstrap missing');
+            }
+        """.trimIndent())
     }
 
     /**

@@ -307,7 +307,11 @@ class WebPlayerHost(private val context: Context) : BridgeHost {
         val done = CompletableDeferred<Unit>()
         main.post {
             runCatching { view.evaluateJavascript(script, null) }
-            done.complete(Unit)
+                .onSuccess { done.complete(Unit) }
+                .onFailure {
+                    Logbook.log("JavaScript dispatch failed: ${it.javaClass.simpleName}")
+                    done.completeExceptionally(it)
+                }
         }
         done.await()
     }
