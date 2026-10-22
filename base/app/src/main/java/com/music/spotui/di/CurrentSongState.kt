@@ -1,35 +1,29 @@
 package com.music.spotui.di
 
-import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import com.music.spotui.data.entity.SongsModel
 
+data class SongSnapshot(
+    val title: String = "", val album: String = "", val singer: String = "",
+    val coverUri: String = "", val playing: Boolean = false, val index: Int = 0, val id: Int = 0,
+)
+
 class CurrentSongState constructor() {
-    private val _title: MutableState<String> = mutableStateOf("")
-    val title: State<String> get() = _title
-
-    private val _album: MutableState<String> = mutableStateOf("")
-    val album : State<String> get() = _album
-
-    private val _singer: MutableState<String> = mutableStateOf("")
-    val singer: State<String> get() = _singer
-
-    private val _coverUri: MutableState<String> = mutableStateOf("")
-    val coverUri: State<String> get() = _coverUri
-
-    private val _playingState: MutableState<Boolean> = mutableStateOf(false)
-    val playingState: State<Boolean> get() = _playingState
-
-    private val _songIndex: MutableState<Int> = mutableStateOf(0)
-    val songIndex : State<Int> get() = _songIndex
-
-    private val _songId: MutableState<Int> = mutableStateOf(0)
-    val songId : State<Int> get() = _songId
+    private val _snapshot = mutableStateOf(SongSnapshot())
+    val snapshot: State<SongSnapshot> get() = _snapshot
+    val title: State<String> = derivedStateOf { _snapshot.value.title }
+    val album: State<String> = derivedStateOf { _snapshot.value.album }
+    val singer: State<String> = derivedStateOf { _snapshot.value.singer }
+    val coverUri: State<String> = derivedStateOf { _snapshot.value.coverUri }
+    val playingState: State<Boolean> = derivedStateOf { _snapshot.value.playing }
+    val songIndex: State<Int> = derivedStateOf { _snapshot.value.index }
+    val songId: State<Int> = derivedStateOf { _snapshot.value.id }
 
     // The actual list the user is playing (album tracks, search results, liked
     // songs…). Next/previous operate on THIS, not on a re-derived global feed.
-    private val _queue: MutableState<List<SongsModel>> = mutableStateOf(emptyList())
+    private val _queue = mutableStateOf<List<SongsModel>>(emptyList())
     val queue: State<List<SongsModel>> get() = _queue
 
     fun updateQueue(queue: List<SongsModel>) {
@@ -58,11 +52,11 @@ class CurrentSongState constructor() {
         val q = _queue.value
         if (newShuffleState) {
             unshuffledQueue = q
-            val curIdx = q.indexOfFirst { it.id == _songId.value }
+            val curIdx = q.indexOfFirst { it.id == songId.value }
             if (curIdx >= 0) {
                 _queue.value = listOf(q[curIdx]) +
                     q.filterIndexed { i, _ -> i != curIdx }.shuffled()
-                _songIndex.value = 0
+                _snapshot.value = _snapshot.value.copy(index = 0)
             } else {
                 _queue.value = q.shuffled()
             }
@@ -72,12 +66,12 @@ class CurrentSongState constructor() {
             // Restore only if we're still inside that queue (it may have been
             // replaced by another list while shuffled). Keep tracks appended in
             // the meantime (queue edits, autoplay radio).
-            if (original != null && original.any { it.id == _songId.value }) {
+            if (original != null && original.any { it.id == songId.value }) {
                 val appended = q.filter { s -> original.none { it.id == s.id } }
                 val restored = original + appended
                 _queue.value = restored
-                val idx = restored.indexOfFirst { it.id == _songId.value }
-                if (idx >= 0) _songIndex.value = idx
+                val idx = restored.indexOfFirst { it.id == songId.value }
+                if (idx >= 0) _snapshot.value = _snapshot.value.copy(index = idx)
             }
         }
     }
@@ -104,7 +98,7 @@ class CurrentSongState constructor() {
      *  metadata — used to reflect the web player's real state (e.g. after the
      *  system notification's pause button) back into the in-app UI. */
     fun updatePlayingState(playing: Boolean) {
-        _playingState.value = playing
+        _snapshot.value = _snapshot.value.copy(playing = playing)
     }
 
     fun updateLikeState(newLikeState : Boolean){
@@ -114,14 +108,8 @@ class CurrentSongState constructor() {
     fun updateSongState(coverUri: String, title: String, singer: String, playingState: Boolean, songId : Int, songIndex : Int, album : String) {
         // The engine re-reports the same track on every state change (pause, like…);
         // only a new track should be persisted / logged / prefetched.
-        val newTrack = songId != _songId.value || title != _title.value
-        _coverUri.value = coverUri
-        _title.value = title
-        _album.value = album
-        _singer.value = singer
-        _playingState.value = playingState
-        _songIndex.value = songIndex
-        _songId.value = songId
+        val newTrack = songId != _snapshot.value.id || title != _snapshot.value.title
+        _snapshot.value = SongSnapshot(title, album, singer, coverUri, playingState, songIndex, songId)
         // Persist the current track so a fresh launch can restore the session.
         if (newTrack && playingState && title.isNotBlank()) {
             _queue.value.firstOrNull { it.id == songId }?.let { track ->

@@ -47,6 +47,7 @@ class SpotifyPlayer(private val bridge: Bridge, private val scope: CoroutineScop
     private val _queue = MutableStateFlow<Queue?>(null)
     override val queue: StateFlow<Queue?> = _queue
 
+    private val stateOrder = StateOrder()
     private var lastTrackState: PlayerState? = null
     private val _adPlaying = MutableStateFlow(false)
     /** An ad is playing (the page plays it to its end). */
@@ -116,6 +117,7 @@ class SpotifyPlayer(private val bridge: Bridge, private val scope: CoroutineScop
         scope.launch {
             bridge.ready.collect {
                 if (!it) {
+                    stateOrder.reset()
                     // The page went away (reloaded by Android, the WebView or the host): what
                     // played then is picked up again once the new page is there.
                     // A page that unloads reports "nothing plays" first: the song before that counts.
@@ -598,6 +600,7 @@ class SpotifyPlayer(private val bridge: Bridge, private val scope: CoroutineScop
     }
 
     private fun onState(s: PlayerState?) {
+        if (!stateOrder.accept(s?.timestampMs)) return
         stateSeq++
         // Another song than the one a crossfade is fading out: the ramp up, at once (the
         // watcher's next tick would leave the new song's first second at the faded level).
@@ -1029,7 +1032,11 @@ class SpotifyPlayer(private val bridge: Bridge, private val scope: CoroutineScop
 
     /** Pulls the state once, e.g. right after the bridge is ready. */
     suspend fun refresh() {
-        onState(playerState(bridge.call("player.state") as? JsonObject))
+        val seq = stateSeq
+        val sampled = playerState(bridge.call("player.state") as? JsonObject)
+        // An event can arrive while this request's response is in flight (including null).
+        // Its snapshot wins; never replace it with the earlier poll's answer.
+        if (seq == stateSeq) onState(sampled)
         _queue.value = queue(bridge.call("player.queue"))
     }
 
