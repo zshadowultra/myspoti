@@ -35,6 +35,9 @@ jobs:
 
       # App unit tests, plus the JVM modules (API contracts, ad block, offline index, GraphQL
       # errors). The live tests in host-cdp skip themselves without a browser to drive.
+      - name: Bridge lesson mechanism tests (no account)
+        run: node api-spotify/bridge-tests/lesson_mechanisms.cjs
+
       - name: Unit tests
         run: ./gradlew testDebugUnitTest :api:test :api-spotify:test :host-cdp:test
 

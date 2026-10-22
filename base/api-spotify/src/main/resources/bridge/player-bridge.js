@@ -40,20 +40,46 @@
 
   // --- service lookup -------------------------------------------------------
 
+  let lookupHost = null, lookupRoots = [], lookupDirty = true, lookupObserver = null;
+  const stopLookup = () => { if (lookupObserver) lookupObserver.disconnect(); lookupObserver = null; };
   const findPlatform = () => {
-    const host = document.getElementById('main') || document.body;
-    const roots = [host, ...host.querySelectorAll('*')];
-    for (const el of roots) {
+    const host = document.getElementById('main');
+    if (!host) return null; // Never scan the whole body while Spotify is mounting.
+    if (host !== lookupHost) {
+      stopLookup();
+      lookupHost = host;
+      lookupDirty = true;
+      // Boot-only, scoped observer. A burst only sets one dirty flag; the 250ms boot
+      // retry coalesces it. No observer or descendant queries remain after ready.
+      lookupObserver = new MutationObserver(() => { lookupDirty = true; });
+      lookupObserver.observe(host, { childList: true, subtree: true });
+    }
+    const platformIn = el => {
       const key = Object.keys(el).find(k => k.startsWith('__reactContainer$'));
-      if (!key) continue;
+      if (!key) return null;
       const stack = [el[key]];
       while (stack.length) {
         const f = stack.pop();
+        if (!f) continue;
         const v = f.memoizedProps && f.memoizedProps.value;
         if (v && typeof v === 'object' && typeof v.getRegistry === 'function') return v;
         if (f.sibling) stack.push(f.sibling);
         if (f.child) stack.push(f.child);
       }
+      return null;
+    };
+    // React normally owns #main itself. Do not materialize ~7000 descendants
+    // before inspecting that root (the old spread did so on every boot retry).
+    const direct = platformIn(host);
+    if (direct) return direct;
+    if (lookupDirty) {
+      lookupDirty = false;
+      lookupRoots = [...host.querySelectorAll('*')].filter(el =>
+        Object.keys(el).some(k => k.startsWith('__reactContainer$')));
+    }
+    for (const el of lookupRoots) {
+      const platform = platformIn(el);
+      if (platform) return platform;
     }
     return null;
   };
@@ -579,6 +605,8 @@
       services = null;
     }
     if (services) {
+      stopLookup();
+      lookupRoots = [];
       attach();
       park();
       post({ type: 'ready', version: VERSION });
@@ -586,6 +614,8 @@
       return;
     }
     if (Date.now() - started > READY_TIMEOUT_MS) {
+      stopLookup();
+      lookupRoots = [];
       post({ type: 'error', error: 'player services not found' });
       return;
     }
