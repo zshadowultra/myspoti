@@ -6,7 +6,9 @@
 
 Do not begin Step 1 until the repo's own build/test gate passes. The first gate (`/tmp/cadence-port/verified-build.log`) **failed** before tasks: Android SDK Platform 37.0 was missing and its license unaccepted. The second chunk installed the exact declared `platforms;android-37.0` (revision 2) using SDK Manager; no compileSdk/dependency downgrade. SDK Manager needed the refreshed egress truststore passed explicitly via `_JAVA_OPTIONS` (Gradle's properties do not apply to SDK Manager).
 
-Fresh repo gate runs: JVM modules in `/tmp/cadence-port/chunk2-jvm.log` + `.exit`; Android `testDebugUnitTest assembleDebug` in `/tmp/cadence-port/chunk2-android.log` + `.exit`. Still running at this checkpoint, not yet green. Exact wrapper 9.7.1 is provisioned. Supplemental exact Kotlin/JUnit compilation of the JVM modules: **68 passed / 31 signed-in-CDP tests skipped / 0 failed**. Android compilation/device proof is not implied.
+The first fresh JVM gate (`chunk2-jvm.log`) ran **68 tests: 67 passed / 1 failed**; CDP separately skipped 31 account-gated tests. Its failure was an invalid `assertSame` exception assertion (coroutine stack-trace recovery copies exceptions); corrected to assert propagated class/message while retaining owner-survival/retry checks. The first Android run timed out on Gradle's shared journal lock, not source compilation.
+
+Current **serial** repo gates: Android `testDebugUnitTest assembleDebug` in `/tmp/cadence-port/chunk2-android-retry.log` + `.exit`, then JVM `:api:test :api-spotify:test :host-cdp:test` in `/tmp/cadence-port/chunk2-jvm-retry.log` + `.exit`. Still pending at this checkpoint, not yet green. Exact wrapper 9.7.1 is provisioned. The earlier supplemental exact Kotlin/JUnit result (68 passed / 31 skipped) is explicitly not substituted for these gates. Android compilation/device proof is not implied.
 
 ## Parity ledger (pending is deliberately not a final disposition)
 

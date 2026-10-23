@@ -191,7 +191,11 @@ class CachedGqlTest {
         for (failure in listOf(IOException("offline"), GqlException("getTrack", "failed"))) {
             val calls = AtomicInteger()
             val cache = CachedGql(delegate { _, _ -> if (calls.incrementAndGet() == 1) throw failure else answer }, scope)
-            assertSame(failure, runCatching { cache.query("getTrack", vars) }.exceptionOrNull())
+            val thrown = runCatching { cache.query("getTrack", vars) }.exceptionOrNull()
+            // Coroutine stack-trace recovery may copy an exception at the await boundary.
+            // Propagation promises its type/message, not object identity.
+            assertInstanceOf(failure.javaClass, thrown)
+            assertEquals(failure.message, thrown?.message)
             assertTrue(scope.coroutineContext[Job]!!.isActive)
             assertEquals(answer, cache.query("getTrack", vars))
             assertEquals(2, calls.get())
