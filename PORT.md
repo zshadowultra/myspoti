@@ -1,10 +1,12 @@
 # Cadence / Spotilol parity — work checkpoint
 
-2026-10-23, first supervised port chunk. **Not a completed parity report.** Read `port-brief.md` and the extraction `INDEX.md` in full; work is intentionally in order. Only Step 0's cache slice was implemented/reviewed here. `LESSONS.md` contains mechanisms, request-count evidence, exact test boundaries and the continuation command. No push.
+2026-10-23, supervised port chunks. **Not a completed parity report.** Read `port-brief.md` and the extraction `INDEX.md` in full; work is intentionally in order. Only Step 0's cache slice was implemented/reviewed here. `LESSONS.md` contains mechanisms, request-count evidence, exact test boundaries and the continuation command. No push.
 
 ## Gate / continuation
 
-Do not begin Step 1 until the repo's own build/test gate passes. Exact wrapper 9.7.1 has been provisioned locally; required Gradle command is running, output `/tmp/cadence-port/verified-build.log`, exit receipt `/tmp/cadence-port/verified-build.exit`. Supplemental exact Kotlin/JUnit compilation of the JVM modules: **68 passed / 31 signed-in-CDP tests skipped / 0 failed**. Android compilation/device proof is not implied.
+Do not begin Step 1 until the repo's own build/test gate passes. The first gate (`/tmp/cadence-port/verified-build.log`) **failed** before tasks: Android SDK Platform 37.0 was missing and its license unaccepted. The second chunk installed the exact declared `platforms;android-37.0` (revision 2) using SDK Manager; no compileSdk/dependency downgrade. SDK Manager needed the refreshed egress truststore passed explicitly via `_JAVA_OPTIONS` (Gradle's properties do not apply to SDK Manager).
+
+Fresh repo gate runs: JVM modules in `/tmp/cadence-port/chunk2-jvm.log` + `.exit`; Android `testDebugUnitTest assembleDebug` in `/tmp/cadence-port/chunk2-android.log` + `.exit`. Still running at this checkpoint, not yet green. Exact wrapper 9.7.1 is provisioned. Supplemental exact Kotlin/JUnit compilation of the JVM modules: **68 passed / 31 signed-in-CDP tests skipped / 0 failed**. Android compilation/device proof is not implied.
 
 ## Parity ledger (pending is deliberately not a final disposition)
 
