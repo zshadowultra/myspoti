@@ -1,0 +1,16 @@
+{
+  "app": {
+    "suites": 34,
+    "tests": 189,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "host-android": {
+    "suites": 1,
+    "tests": 8,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  }
+}

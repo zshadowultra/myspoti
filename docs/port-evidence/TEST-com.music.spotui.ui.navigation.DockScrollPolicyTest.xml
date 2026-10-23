@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.music.spotui.ui.navigation.DockScrollPolicyTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-10-23T19:37:15.400Z" hostname="htch-runtime" time="0.002">
+  <properties/>
+  <testcase name="alternatingJitterDoesNotCollapseOrExpand" classname="com.music.spotui.ui.navigation.DockScrollPolicyTest" time="0.0"/>
+  <testcase name="startsExpandedAndCollapsesAfterEightDp" classname="com.music.spotui.ui.navigation.DockScrollPolicyTest" time="0.0"/>
+  <testcase name="zeroNetFrameStillRearmsActivitySettle" classname="com.music.spotui.ui.navigation.DockScrollPolicyTest" time="0.0"/>
+  <testcase name="horizontalOrZeroDeltasDoNotRearmSettle" classname="com.music.spotui.ui.navigation.DockScrollPolicyTest" time="0.0"/>
+  <testcase name="onlySettlesAfterLastScrollPlus120Ms" classname="com.music.spotui.ui.navigation.DockScrollPolicyTest" time="0.001"/>
+  <testcase name="topAndNavigationResetImmediately" classname="com.music.spotui.ui.navigation.DockScrollPolicyTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

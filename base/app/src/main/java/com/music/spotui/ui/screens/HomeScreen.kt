@@ -1,5 +1,7 @@
 package com.music.spotui.ui.screens
 
+import com.music.spotui.ui.navigation.dockScroll
+
 import com.music.spotui.ui.components.SkeletonKind
 import com.music.spotui.ui.components.pressable
 
@@ -195,7 +197,7 @@ fun HomeFeedContent(navController: NavController, feed: HomeFeedModel, facet: St
     LazyColumn(
         state = listState,
         contentPadding = PaddingValues(bottom = com.music.spotui.ui.components.bottomBarsSpace()),
-        modifier = Modifier
+        modifier = Modifier.dockScroll(listState)
             .fillMaxSize()
             .background(Color(AppBackground.toArgb()))
     ) {

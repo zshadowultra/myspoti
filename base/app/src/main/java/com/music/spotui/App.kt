@@ -38,13 +38,18 @@ import com.music.spotui.ui.navigation.Routes
 fun App() {
     val bottomBarState = rememberSaveable { (mutableStateOf(true)) }
     val bottomBarPlayerState = rememberSaveable { (mutableStateOf(true)) }
+    val dockScope = androidx.compose.runtime.rememberCoroutineScope()
+    val dockScroll = androidx.compose.runtime.remember(dockScope) {
+        com.music.spotui.ui.navigation.DockScrollController(dockScope)
+    }
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
 
     // Control TopBar and BottomBar: on a route change (writing state during composition
     // forces an extra recomposition pass).
     val route = navBackStackEntry?.destination?.route
-    LaunchedEffect(route) {
+    LaunchedEffect(route, com.music.spotui.ui.navigation.PlayerSheet.open.value) {
+        dockScroll.reset()
         when (route) {
             Routes.Home.route, Routes.Search.route, Routes.Library.route -> bottomBarState.value = true
             Routes.Album.route -> bottomBarState.value = false
@@ -54,6 +59,7 @@ fun App() {
     UpdatePrompt()
     SupportPrompt()
 
+    androidx.compose.runtime.CompositionLocalProvider(com.music.spotui.ui.navigation.LocalDockScroll provides dockScroll) {
     androidx.compose.foundation.layout.Box(Modifier.fillMaxSize()) {
         Scaffold(
             modifier = Modifier,
@@ -65,6 +71,7 @@ fun App() {
         }
         // Over the pages and the bottom bar: pulling it down shows them, already in place.
         com.music.spotui.ui.navigation.PlayerOverlay(navController)
+    }
     }
 }
 

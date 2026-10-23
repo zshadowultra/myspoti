@@ -1,5 +1,7 @@
 package com.music.spotui.ui.screens
 
+import com.music.spotui.ui.navigation.dockScroll
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.border
@@ -58,6 +60,7 @@ import com.music.spotui.ui.theme.AppBackground
 fun SettingsScreen(navController: NavController) {
     val energy by app.myspoti.power.EnergySettings.state.collectAsStateWithLifecycle()
     val ctx = androidx.compose.ui.platform.LocalContext.current
+    val scrollState = rememberScrollState()
     Column(Modifier.fillMaxSize().background(AppBackground).statusBarsPadding()) {
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth().padding(4.dp)) {
             IconButton(onClick = { navController.popBackStack() }) {
@@ -65,7 +68,8 @@ fun SettingsScreen(navController: NavController) {
             }
             Text(stringResource(R.string.settings_title), color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
         }
-        Column(Modifier.fillMaxWidth().weight(1f).verticalScroll(rememberScrollState()).navigationBarsPadding()) {
+        Column(Modifier.fillMaxWidth().weight(1f).dockScroll(scrollState)
+            .verticalScroll(scrollState).padding(bottom = com.music.spotui.ui.components.bottomBarsSpace())) {
             Section(R.string.settings_section_playback)
             StreamingQualityPicker()
             OptionRow(

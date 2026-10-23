@@ -1,5 +1,7 @@
 package com.music.spotui.ui.screens
 
+import com.music.spotui.ui.navigation.dockScroll
+
 import app.myspoti.api.best
 
 import kotlinx.coroutines.launch
@@ -179,7 +181,7 @@ fun SumUpSearchScreen(
     LazyColumn(
         state = listState,
         contentPadding = androidx.compose.foundation.layout.PaddingValues(bottom = com.music.spotui.ui.components.bottomBarsSpace()),
-        modifier = Modifier
+        modifier = Modifier.dockScroll(listState)
             .fillMaxSize()
             .background(Color(AppBackground.toArgb()))
             .statusBarsPadding()

@@ -1,51 +1,43 @@
 package com.music.spotui.ui.navigation
 
-import androidx.navigation.NavGraph.Companion.findStartDestination
-import androidx.compose.ui.res.stringResource
-import app.myspoti.engine.R
-
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
-
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.music.spotui.ui.components.MiniPlayer
+import app.myspoti.engine.R
+import com.music.spotui.ui.components.DockMiniPlayer
+import com.music.spotui.ui.theme.AppSans
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 
-import androidx.compose.foundation.layout.navigationBarsPadding
+internal val DockSurface = Color(0xFF313131)
+private val DockSelected = Color(0xFF646464)
 
 /**
  * What re-tapping the tab you are already on does in the official app: Home and Library
@@ -89,161 +81,125 @@ class NoRippleInteractionSource : MutableInteractionSource {
 }
 
 @Composable
-fun MainBottomNavigation(navController: NavHostController, bottomBarState: MutableState<Boolean>, bottomBarPlayerState : MutableState<Boolean>) {
-
-    val navItems = listOf(
-        Routes.Home,
-        Routes.Search,
-        Routes.Library
-    )
-    // Visibility follows the screen actually shown (not flags each screen sets,
-    // which raced during transitions and left the mini player over the full one).
-    val shownRoute = navController.currentBackStackEntryAsState().value?.destination?.route
-    // The SpotiFLAC verification too: under the bar its retry and skip buttons were out of reach.
-    val fullScreen = shownRoute == Routes.Player.route || shownRoute == Routes.Queue.route || shownRoute == Routes.Spotiflac.route
-    val hasTrack = com.music.spotui.di.Graph.currentSongState.title.value.isNotBlank()
-    // No motion of its own: the bar sits above the pages, so sliding it while the
-    // player rises (or collapses behind it) made one gesture look like two.
-    AnimatedVisibility(
-        visible = !fullScreen,
-        enter = androidx.compose.animation.EnterTransition.None,
-        exit = androidx.compose.animation.ExitTransition.None,
-        content = {
-            Box(
-                contentAlignment = Alignment.BottomCenter,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    // Flat dark grey by default; Display can select pure black.
-                    .then(
-                        if (com.music.spotui.data.preferences.SolidNavBar.on) Modifier.background(Color.Black)
-                        else Modifier.background(Color(0xFF121212))
-                    )
-            ) {
-
-                Column(modifier = Modifier.navigationBarsPadding()) {
-
-                    AnimatedVisibility(
-                        visible = hasTrack,
-                        enter = slideInVertically(initialOffsetY = { it }),
-                        exit = slideOutVertically(targetOffsetY = { it }),
-                        content = {
-                            MiniPlayer(navController)
-                        }
-                    )
-
-
-
-                    Spacer(modifier = Modifier.height(4.dp))
-                    val navStack by navController.currentBackStackEntryAsState()
-                    val currentRoute = navStack?.destination?.route
-                    // The tab the user is in, even on one of its sub-pages (album, artist…).
-                    var selectedTab by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(Routes.Home.route) }
-                    if (currentRoute in navItems.map { it.route }) selectedTab = currentRoute!!
-
-                    // Official bar proportions: a 58 dp strip (the gesture inset is added by
-                    // navigationBarsPadding above), three equal thirds edge to edge, so the
-                    // tabs spread over the full width instead of clustering in the middle.
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(NavBarHeight),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        navItems.forEach { item ->
-                            NavBarTab(
-                                iconRes = item.icon,
-                                label = if (item.labelRes != 0) stringResource(item.labelRes) else item.label,
-                                selected = selectedTab == item.route,
-                                onClick = {
-                                    // Standard bottom-tab navigation: each tab keeps its
-                                    // state (no reload, scroll kept) when you come back.
-                                    if (item.route == selectedTab) {
-                                        if (currentRoute == item.route) {
-                                            // Already on the tab's own page: nothing to reload, only
-                                            // the re-tap shortcut (scroll to top, or focus search).
-                                            TabReselect.emit(item.route)
-                                        } else if (!navController.popBackStack(item.route, inclusive = false)) {
-                                            // On one of its sub-pages: back to its root page first.
-                                            navController.navigate(item.route) { launchSingleTop = true }
-                                        }
-                                    } else {
-                                        selectedTab = item.route
-                                        navController.navigate(item.route) {
-                                            popUpTo(navController.graph.findStartDestination().id) { saveState = true }
-                                            launchSingleTop = true
-                                            // Home always opens Home itself (its scroll kept), not the
-                                            // page last left open from it (a playlist, an artist…).
-                                            restoreState = item.route != Routes.Home.route
-                                        }
-                                    }
-                                },
-                            )
-                        }
-                    }
-
-
-
-                }
-
-
-
+fun MainBottomNavigation(
+    navController: NavHostController,
+    bottomBarState: MutableState<Boolean>,
+    bottomBarPlayerState: MutableState<Boolean>,
+) {
+    val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
+    val fullScreen = currentRoute in listOf(Routes.Player.route, Routes.Queue.route, Routes.Spotiflac.route)
+    if (fullScreen || PlayerSheet.open.value) return
+    val tabs = listOf(Routes.Home, Routes.Library, Routes.Settings)
+    var selectedTab by rememberSaveable { mutableStateOf(Routes.Home.route) }
+    LaunchedEffect(currentRoute) {
+        if (currentRoute in tabs.map { it.route } + Routes.Search.route) selectedTab = currentRoute!!
+    }
+    fun navigate(item: Routes) {
+        if (item.route == selectedTab) {
+            if (currentRoute == item.route) TabReselect.emit(item.route)
+            else if (!navController.popBackStack(item.route, inclusive = false)) {
+                navController.navigate(item.route) { launchSingleTop = true }
+            }
+        } else {
+            navController.navigate(item.route) {
+                popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                launchSingleTop = true
+                restoreState = item.route != Routes.Home.route
             }
         }
-    )
+    }
+    val collapsed = LocalDockScroll.current?.collapsed == true
+    val progress = animateFloatAsState(if (collapsed) 1f else 0f,
+        tween(280, easing = CubicBezierEasing(0.6f, 0f, 0.1f, 1f)), label = "dockMorph")
+    val hasSong = com.music.spotui.di.Graph.currentSongState.snapshot.value.title.isNotBlank() ||
+        com.music.spotui.di.SongPlayer.adPlaying
+    // Both geometries remain allocated. Only GPU layer transforms/opacity animate;
+    // Compose's animation clock honors the system animator duration scale (including zero).
+    Box(Modifier.fillMaxWidth().navigationBarsPadding()
+        .padding(start = 15.dp, end = 15.dp, bottom = 12.dp)
+        .height(if (hasSong) 124.dp else 64.dp)) {
+        Column(
+            Modifier.fillMaxWidth().align(Alignment.BottomCenter)
+                .then(if (collapsed) Modifier.clearAndSetSemantics { } else Modifier)
+                .graphicsLayer {
+                    alpha = 1f - progress.value
+                    translationY = 10.dp.toPx() * progress.value
+                    scaleX = 1f - 0.04f * progress.value
+                    scaleY = scaleX
+                },
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
+            if (hasSong) DockMiniPlayer(enabled = !collapsed)
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(9.dp)) {
+                Row(
+                    Modifier.weight(1f).height(64.dp).clip(CircleShape).background(DockSurface).padding(4.dp),
+                ) {
+                    tabs.forEach { item ->
+                        val icon = when (item) {
+                            Routes.Home -> R.drawable.ic_dock_home
+                            Routes.Library -> R.drawable.ic_dock_library
+                            else -> R.drawable.ic_dock_settings
+                        }
+                        val label = stringResource(if (item == Routes.Settings) R.string.settings_title else item.labelRes)
+                        val active = selectedTab == item.route
+                        val tint = if (active) Color.White else Color(0xFFB3B3B3)
+                        Column(
+                            Modifier.weight(1f).fillMaxHeight().clip(CircleShape)
+                                .background(if (active) DockSelected else DockSurface)
+                                .semantics { selected = active }
+                                .clickable(enabled = !collapsed, role = Role.Tab, onClickLabel = label) { navigate(item) },
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                        ) {
+                            Icon(painterResource(icon), null, Modifier.size(24.dp), tint = tint)
+                            Spacer(Modifier.height(3.dp))
+                            Text(label, color = tint, fontFamily = AppSans, fontWeight = FontWeight.Medium,
+                                fontSize = 11.sp, lineHeight = 12.sp, maxLines = 1)
+                        }
+                    }
+                }
+                Box(
+                    Modifier.size(64.dp).clip(CircleShape).background(DockSurface)
+                        .semantics { selected = selectedTab == Routes.Search.route }
+                        .clickable(enabled = !collapsed, role = Role.Tab) { navigate(Routes.Search) },
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(painterResource(R.drawable.ic_dock_search), stringResource(Routes.Search.labelRes),
+                        Modifier.size(26.dp), tint = Color.White)
+                }
+            }
+        }
+        Row(
+            Modifier.fillMaxWidth().align(Alignment.BottomCenter)
+                .then(if (!collapsed) Modifier.clearAndSetSemantics { } else Modifier)
+                .graphicsLayer {
+                    alpha = progress.value
+                    translationY = 10.dp.toPx() * (1f - progress.value)
+                    scaleX = 0.96f + 0.04f * progress.value
+                    scaleY = scaleX
+                },
+            horizontalArrangement = Arrangement.spacedBy(14.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            DockCircle(R.drawable.ic_dock_home, stringResource(Routes.Home.labelRes),
+                selectedTab == Routes.Home.route, collapsed) { navigate(Routes.Home) }
+            Box(Modifier.weight(1f).height(54.dp)) {
+                if (hasSong) DockMiniPlayer(compact = true, enabled = collapsed)
+            }
+            DockCircle(R.drawable.ic_dock_search, stringResource(Routes.Search.labelRes),
+                selectedTab == Routes.Search.route, collapsed, search = true) { navigate(Routes.Search) }
+        }
+    }
 }
 
-// Official app metrics. Material3's NavigationBarItem measures its icon slot at a
-// fixed 24 dp, so a 28 dp Icon there was clipped back down: the bar is drawn by hand.
-private val NavBarHeight = 58.dp
-private val NavIconSize = 28.dp
-
-/**
- * One tab of the bottom bar: a 28 dp glyph above an 11 sp medium label, the two
- * centred as a single block inside an equal third of the bar's width.
- */
 @Composable
-private fun RowScope.NavBarTab(
-    iconRes: Int,
-    label: String,
-    selected: Boolean,
-    onClick: () -> Unit,
-) {
-    // Spotify's idle grey, lighter than Color.Gray which read as "disabled".
-    val tint = if (selected) Color.White else Color(0xFFB3B3B3)
-    Box(
-        modifier = Modifier
-            .weight(1f)
-            .fillMaxHeight()
-            // No ripple: the bar is a plain strip of tabs, and the tint is the feedback.
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null,
-                onClickLabel = label,
-                onClick = onClick,
-            ),
-        contentAlignment = Alignment.Center,
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-        ) {
-            Icon(
-                painter = painterResource(id = iconRes),
-                // The label right below already names the tab for TalkBack.
-                contentDescription = null,
-                tint = tint,
-                modifier = Modifier.size(NavIconSize),
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = label,
-                color = tint,
-                fontSize = 11.sp,
-                lineHeight = 12.sp,
-                fontWeight = FontWeight.Medium,
-                letterSpacing = 0.2.sp,
-                maxLines = 1,
-            )
-        }
+private fun DockCircle(icon: Int, label: String, active: Boolean, enabled: Boolean,
+    search: Boolean = false, onClick: () -> Unit) {
+    Box(Modifier.size(54.dp).clip(CircleShape).background(DockSurface)
+        .semantics { selected = active }
+        .clickable(enabled = enabled, role = Role.Tab, onClickLabel = label, onClick = onClick),
+        contentAlignment = Alignment.Center) {
+        Icon(painterResource(icon), label, Modifier.size(26.dp),
+            tint = if (active || search) Color.White else Color(0xFFB3B3B3))
     }
 }

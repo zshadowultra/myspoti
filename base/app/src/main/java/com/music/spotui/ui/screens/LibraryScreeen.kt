@@ -1,5 +1,7 @@
 package com.music.spotui.ui.screens
 
+import com.music.spotui.ui.navigation.dockScroll
+
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PushPin
 import com.music.spotui.ui.components.pressable
@@ -439,7 +441,7 @@ fun SumUpLibraryScreen(
     LazyColumn(
         state = listState,
         contentPadding = PaddingValues(top = 10.dp, bottom = com.music.spotui.ui.components.bottomBarsSpace()),
-        modifier = Modifier
+        modifier = Modifier.dockScroll(listState)
             .fillMaxSize()
             .background(com.music.spotui.ui.theme.AppBackground)
     ) {
@@ -670,7 +672,7 @@ fun LibraryGridScreen(
     LazyVerticalGrid(
         state = gridState,
         columns = GridCells.Fixed(3),
-        modifier = Modifier
+        modifier = Modifier.dockScroll(gridState)
             .fillMaxSize()
             .padding(padding)
             .background(com.music.spotui.ui.theme.AppBackground),
