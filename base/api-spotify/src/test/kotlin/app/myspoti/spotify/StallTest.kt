@@ -25,6 +25,8 @@ class StallTest {
     @Test fun `paused mid-song`() = assertNull(SpotifyPlayer.stallOf(state(50_000, 0, paused = true), 60_000, false))
     @Test fun `buffering for long`() = assertEquals("buffering", SpotifyPlayer.stallOf(state(0, 0, buffering = true), 20_000, false))
     @Test fun `buffering a moment`() = assertNull(SpotifyPlayer.stallOf(state(0, 0, buffering = true), 5_000, false))
+    @Test fun `stale playing state after user pause cannot self advance`() = assertNull(SpotifyPlayer.stallOf(state(190_000, 0), 20_000, true))
+    @Test fun `stale buffering state after user pause cannot restart`() = assertNull(SpotifyPlayer.stallOf(state(0, 0, buffering = true), 20_000, true))
 
     private val episode = song.copy(kind = ItemKind.EPISODE, uri = "spotify:episode:e", name = "E")
     private val nextEpisode = episode.copy(uri = "spotify:episode:f", name = "F")

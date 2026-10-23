@@ -1,0 +1,102 @@
+Picked up _JAVA_OPTIONS: -Djava.net.preferIPv4Stack=true
+Starting a Gradle Daemon, 3 busy and 2 stopped Daemons could not be reused, use --status for details
+> Task :api:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :api-spotify:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :api-spotify:processResources UP-TO-DATE
+> Task :api-spotify:processTestResources NO-SOURCE
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:generateDebugBuildConfig UP-TO-DATE
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :app:packageDebugResources UP-TO-DATE
+> Task :host-android:preBuild UP-TO-DATE
+> Task :host-android:preDebugBuild UP-TO-DATE
+> Task :host-android:processDebugNavigationResources UP-TO-DATE
+> Task :api:compileKotlin UP-TO-DATE
+> Task :api:compileJava NO-SOURCE
+> Task :api:processResources NO-SOURCE
+> Task :api:classes UP-TO-DATE
+> Task :api:jar UP-TO-DATE
+> Task :app:processDebugNavigationResources UP-TO-DATE
+> Task :app:parseDebugLocalResources UP-TO-DATE
+> Task :app:generateDebugRFile UP-TO-DATE
+> Task :host-android:generateDebugResources UP-TO-DATE
+> Task :host-android:packageDebugResources UP-TO-DATE
+> Task :host-android:parseDebugLocalResources UP-TO-DATE
+> Task :host-android:generateDebugRFile UP-TO-DATE
+> Task :host-android:javaPreCompileDebug UP-TO-DATE
+> Task :app:javaPreCompileDebug UP-TO-DATE
+> Task :host-android:writeDebugAarMetadata UP-TO-DATE
+> Task :app:checkDebugAarMetadata UP-TO-DATE
+> Task :app:mapDebugSourceSetPaths UP-TO-DATE
+> Task :app:compileDebugNavigationResources UP-TO-DATE
+> Task :app:mergeDebugResources UP-TO-DATE
+> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksDebug UP-TO-DATE
+> Task :host-android:extractDeepLinksDebug UP-TO-DATE
+> Task :host-android:processDebugManifest UP-TO-DATE
+> Task :app:processDebugMainManifest UP-TO-DATE
+> Task :app:processDebugManifest UP-TO-DATE
+> Task :app:processDebugManifestForPackage UP-TO-DATE
+> Task :host-android:mapDebugSourceSetPaths UP-TO-DATE
+> Task :host-android:compileDebugLibraryResources UP-TO-DATE
+> Task :app:processDebugResources UP-TO-DATE
+> Task :app:preDebugUnitTestBuild UP-TO-DATE
+> Task :app:javaPreCompileDebugUnitTest UP-TO-DATE
+> Task :host-android:preDebugUnitTestBuild UP-TO-DATE
+> Task :host-android:generateDebugUnitTestStubRFile UP-TO-DATE
+> Task :host-android:javaPreCompileDebugUnitTest UP-TO-DATE
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :host-android:generateDebugAssets UP-TO-DATE
+> Task :host-android:mergeDebugAssets UP-TO-DATE
+> Task :app:mergeDebugAssets UP-TO-DATE
+> Task :app:compressDebugAssets UP-TO-DATE
+> Task :app:generateDebugGlobalSynthetics UP-TO-DATE
+> Task :app:checkDebugDuplicateClasses UP-TO-DATE
+> Task :app:desugarDebugFileDependencies UP-TO-DATE
+> Task :app:mergeExtDexDebug UP-TO-DATE
+> Task :app:mergeDebugJniLibFolders UP-TO-DATE
+> Task :host-android:mergeDebugJniLibFolders UP-TO-DATE
+> Task :host-android:mergeDebugNativeLibs NO-SOURCE
+> Task :host-android:copyDebugJniLibsProjectOnly UP-TO-DATE
+> Task :app:validateSigningDebug
+> Task :app:writeDebugAppMetadata UP-TO-DATE
+> Task :app:writeDebugSigningConfigVersions UP-TO-DATE
+> Task :host-android:checkDebugAarMetadata UP-TO-DATE
+> Task :host-android:stripDebugDebugSymbols NO-SOURCE
+> Task :host-android:copyDebugJniLibsProjectAndLocalJars UP-TO-DATE
+> Task :host-android:extractDeepLinksForAarDebug UP-TO-DATE
+> Task :host-android:prepareDebugArtProfile UP-TO-DATE
+> Task :host-android:prepareLintJarForPublish UP-TO-DATE
+> Task :api-spotify:compileKotlin
+> Task :api-spotify:compileJava NO-SOURCE
+> Task :api-spotify:classes UP-TO-DATE
+> Task :api-spotify:jar
+> Task :api-spotify:compileTestKotlin
+> Task :api-spotify:compileTestJava NO-SOURCE
+> Task :api-spotify:testClasses UP-TO-DATE
+
+> Task :api-spotify:test
+Picked up _JAVA_OPTIONS: -Djava.net.preferIPv4Stack=true
+
+TransportIntentTest > a newer pause cancels a suspended previous retry() FAILED
+    org.opentest4j.AssertionFailedError at TransportIntentTest.kt:40
+
+78 tests completed, 1 failed
+
+> Task :api-spotify:test FAILED
+> Task :host-android:compileDebugKotlin
+w: Detected multiple Kotlin daemon sessions at 
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':api-spotify:test'.
+> There were failing tests. See the report at: file:///home/hatch/workspace/myspoti/base/api-spotify/build/reports/tests/test/index.html
+
+* Try:
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+
+BUILD FAILED in 1m 45s
+57 actionable tasks: 6 executed, 51 up-to-date

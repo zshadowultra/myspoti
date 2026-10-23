@@ -1,0 +1,13 @@
+{
+  "command": "./gradlew -I /tmp/cadence-early-mirror.gradle :api-spotify:test testDebugUnitTest assembleDebug --no-configuration-cache",
+  "cwd": "base/",
+  "exit_code": 0,
+  "build_duration": "2m 10s",
+  "api-spotify": {"tests": 78, "passed": 78, "failures": 0, "errors": 0, "skipped": 0, "reports": 15},
+  "app": {"tests": 189, "passed": 189, "failures": 0, "errors": 0, "skipped": 0, "reports": 34},
+  "host-android": {"tests": 8, "passed": 8, "failures": 0, "errors": 0, "skipped": 0, "reports": 1},
+  "new_regressions": 10,
+  "apk": "base/app/build/outputs/apk/debug/app-debug.apk",
+  "device_audio_verified": false,
+  "step_2_complete": false
+}

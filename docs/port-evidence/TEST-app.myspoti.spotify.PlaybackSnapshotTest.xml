@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="app.myspoti.spotify.PlaybackSnapshotTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-10-23T20:43:40.423Z" hostname="htch-runtime" time="0.065">
+  <properties/>
+  <testcase name="interleaved old metadata cannot roll back a complete new track()" classname="app.myspoti.spotify.PlaybackSnapshotTest" time="0.064"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -174,7 +174,7 @@ object SongPlayer {
     /** System controls (notification, headset, car) land here. */
     private object Controls : app.myspoti.host.android.PlaybackControls {
         override fun play() = SongPlayer.play()
-        override fun pause() = SongPlayer.pause()
+        override fun pause() = SongPlayer.pauseSilently("system-media")
         override fun next() = SongPlayer.next()
         override fun previous() = SongPlayer.previous()
         override fun seekTo(ms: Long) = SongPlayer.seekTo(ms)
@@ -234,6 +234,8 @@ object SongPlayer {
 
     /** Call on the main thread before navigating to logout. */
     fun clearSession() {
+        transportJob?.cancel()
+        transportGen.incrementAndGet()
         main.removeCallbacksAndMessages(null)
         pendingTrackId = null
         pendingItemUri = null
@@ -358,7 +360,7 @@ object SongPlayer {
         if (item != null && item.provider == "autoplay" && uri.startsWith(SPOTIFY_TRACK_PREFIX) &&
             uri != autoplayHandledUri && !com.music.spotui.data.preferences.AutoplayPref.on) {
             autoplayHandledUri = uri
-            if (!s.isPaused) pauseSilently()
+            if (!s.isPaused) pauseSilently("autoplay-off")
         }
         currentContextUri = s.contextUri.orEmpty()
         if (item != null) { checkEndOfTrackTimer(id); currentTrackId = id }
@@ -477,6 +479,7 @@ object SongPlayer {
 
     private val transportLock = kotlinx.coroutines.sync.Mutex()
     private val transportGen = java.util.concurrent.atomic.AtomicInteger()
+    private var transportJob: kotlinx.coroutines.Job? = null
 
     /**
      * Play, pause, skip: sent one at a time and only the newest one counts. Taps sent all
@@ -490,7 +493,8 @@ object SongPlayer {
      */
     private fun transport(pullBack: Boolean = true, waitReady: Boolean = true, block: suspend (isLatest: () -> Boolean) -> Unit) {
         val gen = transportGen.incrementAndGet()
-        scope.launch {
+        transportJob?.cancel()
+        transportJob = scope.launch {
             transportLock.withLock {
                 if (gen != transportGen.get()) return@withLock
                 // A tap while the page loads (cold start, a reload): sent once it is there,
@@ -603,20 +607,30 @@ object SongPlayer {
         // "the podcast stopped and the play button does nothing" was — B11) is asked for again
         // by its uri, where it was. Music keeps the plain resume: it never showed that.
         if (!uri.startsWith("spotify:episode:")) return
+        val revision = transportGen.get()
         scope.launch {
             kotlinx.coroutines.delay(EPISODE_RESUME_CHECK_MS)
-            if (!playing || LocalPlayer.active.value) return@launch
+            if (revision != transportGen.get() || !playing || LocalPlayer.active.value) return@launch
             val s = api.player.state.value
             if (s?.item?.uri == uri && s.isPaused) {
                 Log.i(TAG, "episode resume not taken: playing $uri again")
-                runCatching { api.player.play(uri, positionMs = getCurrentPosition()) }
+                transport { api.player.play(uri, positionMs = getCurrentPosition()) }
             }
         }
     }
 
-    fun pause() { Haptics.click(); pauseSilently() }
+    fun pause() { Haptics.click(); pauseSilently("user") }
 
-    private fun pauseSilently() {
+    /**
+     * Every pause names its source in the log: a "ghost pause" (playback stops with no tap)
+     * is told apart from a real one only by who asked — the user, the sleep timer, the
+     * autoplay-off policy or the end-of-track watch (PLAYBACK-INTEGRITY bug 2).
+     */
+    private fun pauseSilently(source: String) {
+        Log.i(TAG, "pause ($source)")
+        resumeWhenReady = false
+        main.removeCallbacks(sendSkips)
+        pendingSkips = 0
         if (LocalPlayer.active.value) { LocalPlayer.pause(); return }
         intendPaused()
         positionMs = getCurrentPosition(); positionAt = SystemClock.elapsedRealtime(); playing = false
@@ -1071,7 +1085,7 @@ object SongPlayer {
     // ── Sleep timer ──
     private val _sleepEndsAt = mutableStateOf<Long?>(null)   // elapsedRealtime, or -1 = end of track
     val sleepEndsAt: State<Long?> get() = _sleepEndsAt
-    private val sleepRunnable = Runnable { _sleepEndsAt.value = null; pauseSilently() }
+    private val sleepRunnable = Runnable { _sleepEndsAt.value = null; pauseSilently("sleep-timer") }
     private var sleepTrackId: String? = null
 
     /** [minutes] null = off, 0 = at the end of the current track. */
@@ -1109,7 +1123,7 @@ object SongPlayer {
             if (moved || atEnd) {
                 sleepTrackId = null
                 _sleepEndsAt.value = null
-                pauseSilently()
+                pauseSilently("sleep-end-of-track")
                 return
             }
             main.postDelayed(this, 250)

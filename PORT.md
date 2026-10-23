@@ -1,6 +1,6 @@
 # Cadence / Spotilol parity — work checkpoint
 
-2026-10-23, supervised port chunks. **Not a completed parity report.** `port-brief.md` and the extraction `INDEX.md` were read in full; work is intentionally in order. Step 0's JVM cache slice is committed and retained, and its Android gate is now green. Step 1's native dock implementation and ten new regressions are Android-Gradle verified; device visual/accessibility acceptance remains open. `LESSONS.md` retains cache mechanisms and the earlier JVM test boundaries. No push. **Next: Step 2 playback-integrity audit, then Steps 3–4 and the complete final ledger.**
+2026-10-23, supervised port chunks. **Not a completed parity report.** `port-brief.md` and the extraction `INDEX.md` were read in full; work is intentionally in order. Step 0's JVM cache slice is committed and retained, and its Android gate is now green. Step 1's native dock implementation and ten new regressions are Android-Gradle verified; device visual/accessibility acceptance remains open. Step 2's transport/snapshot regression slice is verified via the repo JVM/Android gates; the full playback audit is not complete. `LESSONS.md` retains cache mechanisms and the earlier JVM test boundaries. No push. **Next: Step 2 playback-integrity audit, then Steps 3–4 and the complete final ledger.**
 
 ## Historical gate / continuation (superseded by Chunk 5 below)
 
@@ -30,14 +30,65 @@ The prior environment repair is genuinely effective: after `~/bin/android-build-
 
 Step 1 is implemented natively: expanded and collapsed reference geometries, real navigation/player transports, atomic mini-player snapshot, Solar Bold vectors, AMOLED black, fixed clearance, one-frame scroll decisions, 8dp hysteresis / 4dp top threshold / 120ms settle, transform/opacity-only 280ms expressive morph using the system motion-scale-aware Compose animation runtime. `docs/native-dock.md` records mechanisms and limits. Both reference files were opened with Read again, but this model cannot receive image attachments; no screenshot perfection, TalkBack/focus transfer, on-device reduced-motion or background-continuity acceptance is claimed. Those remain device validation, not an Android compile blocker. No new large step was started late in the chunk.
 
+## Chunk 6 — playback retry / snapshot slice
+
+Started with the requested `git log --oneline -8` and this checkpoint, then read
+`port-brief.md` and extraction `INDEX.md` in full. The recorded Step 0 JVM and
+Step 1 dock work was retained, not rebuilt from scratch. `~/bin/android-build-env.sh`
+restored sandbox services; the exact Glide Compose AAR HEAD returns **200**,
+Content-Length **128586**. The historical Maven blocker stays resolved.
+
+The inherited tree had uncommitted `SpotifyPlayer.kt`, `StallTest.kt`,
+`SongPlayer.kt` and `TransportIntentTest.kt` edits. Reviewed them, added real
+bridge interleaving tests, and closed further stale recovery/fallback paths.
+Explicit play/pause/resume/skip revisions supersede suspended retries; automatic
+play/resume keeps its initiating revision. Pause discards held skips/reload
+intent; cancelled previous must **not** enter the seek/play fallback. App-side
+transports cancel superseded jobs, episode repair stays in the queue, pending
+skip bursts/cold-start resume are cleared on pause, and pause logs name user /
+system-media / autoplay-off / sleep sources without new UI copy.
+
+`docs/playback-integrity-port.md` accounts for all four integrity symptoms and
+all five uncommitted extraction files. Atomic PlayerAPI → Bridge → mapped state
+→ Compose snapshot already exists; new regression sends A(100), B(200), late
+A(150) through the real bridge and keeps all of B's metadata. Native media
+session publishes one metadata object and rejects stale cover downloads.
+
+First serial repo gate (`:api-spotify:test testDebugUnitTest assembleDebug`)
+**failed**, exit **1**, `/tmp/cadence-port/chunk6-playback.log`: **78 JVM tests,
+77 passed / 1 failed**, `TransportIntentTest` previous→pause proved cancellation
+was swallowed into the previous fallback. Fixed by rethrowing cancellation and
+retaining the initiating revision in fallback commands. This failure is not a
+Maven/environment claim. Source was frozen before serial retry at
+`/tmp/cadence-port/chunk6-playback-retry.log` + `.exit`: **BUILD SUCCESSFUL in
+2m 10s**, exit **0**. Durable copies of both runs and the style check are in
+`docs/port-evidence/`. XML totals: **api-spotify 78 passed, app 189 passed,
+host-android 8 passed; 0 failures / 0 errors / 0 skipped**. All ten new regressions
+pass via Gradle. `chunk6-test-summary.json` and the three playback regression
+XML files preserve the counts and cases. APK rebuilt at
+`base/app/build/outputs/apk/debug/app-debug.apk`. Static fork/style check also
+passes, exit **0** (`chunk6-fork-check.log` / `.exit`). No Step 0-specific JVM gate
+or account-gated CDP test suite was rerun.
+
+**Step 2 remains partial.** Next slice: remaining automatic watchdog / reload
+handoffs and Connect ownership (no repair permission from unknown/remote
+ownership), plus local-source handoff pauses that still bypass the transport
+queue. `MediaProxy.ENABLED=false` makes the old full-body CDN type-probe fix N/A;
+no global Spotify interval throttling exists. Existing native Canvas/clip
+lifecycle, renderer-priority policy, foreground media-service grace and Media3
+local audio-focus/noisy policy were audited; not presented as measured audible
+screen-off continuity. Task-dismissal/detached WebView visibility still needs
+real device evidence. Steps 3–4 and final complete speed/visual/data ledger were
+not started out of order. No push, no dependency/version downgrade.
+
 ## Parity ledger (pending is deliberately not a final disposition)
 
 | Source from extraction INDEX | Disposition | Evidence / remaining work |
 |---|---|---|
 | Stranded lessons / catalog-search caching | Ported; repo JVM and Android gates verified | `b6e25e1` implementation; `87d1dd1` recovery-compatible regression. JVM: 68 passed / 31 account-gated skipped (`chunk2-jvm-retry.log`, exit 0). Android: `chunk5-android-root.log`, exit 0. `SpotifyApi.kt`, `gql/CachedGql.kt`, cache lifecycle/live tests; bounded LRU, TTL/SWR, single-flight, failure backoff, session invalidation. Existing home/library caches retained. |
 | Nav a163288 / b0908b9 / c197801 (including reduced motion) | Ported natively; Android gate verified; device visual/accessibility proof pending | `MainBottomNavigation.kt`, `DockMiniPlayer.kt`, `DockScrollController.kt`, policy + ten regressions; `docs/native-dock.md`. Both source docs and reference files read. Actual repo Android gates exit 0, 197 native tests passed. Native system animator-scale support replaces CSS media query; Figtree replaces absent native Satoshi. No HTML/CSS copied or screenshot acceptance asserted. |
-| Playback dcfb50e / 5a2dd1c | Pending Step 2 end-to-end audit | Existing `c4a4392` atomic metadata/order and fork pause/volume guards have passing supplemental JVM regressions; still must read integrity findings and audit remaining transport/service paths. |
-| Uncommitted integrity leftovers (app.js, CustomUI.kt, AndroidAuto.kt, AndroidTracker.kt, PowerSave.kt + working-tree.diff) | Pending Step 2 review | Extraction includes unreviewed production leftovers; not silently treated as landed fixes or N/A. |
+| Playback dcfb50e / 5a2dd1c | Step 2 snapshot / desired-state retry slice ported; full audit pending | `docs/playback-integrity-port.md`; immutable PlayerAPI/Compose metadata already present, new real-bridge interleaving + transport-generation regressions. Repo gate exit **0** (`chunk6-playback-retry.log`); 275 tests passed, including ten new regressions. Remaining watchdog/reload/ownership and local handoff audit next. |
+| Uncommitted integrity leftovers (app.js, CustomUI.kt, AndroidAuto.kt, AndroidTracker.kt, PowerSave.kt + working-tree.diff) | Reviewed; per-file native/already-present/N/A dispositions recorded | `docs/playback-integrity-port.md`: native context transport, atomic metadata/media session, no global timer throttling; DOM bridge/overlay N/A. Arbitrary search album-context fallback intentionally not adopted. No extra UI copy; device audio proof not claimed. |
 | Earlier UI/data 736227e | Pending detailed accounting | Compare extracted wiring against native API/UI; no mock data. |
 | Perf 5b7aeb4 / PERF.md | Pending Step 3 | Step 0 supplies catalog/search cache; existing startup, screen caches, tokens, lyrics and palette prefetch documented in `LESSONS.md`. Must read findings before final dispositions. |
 | Visual ad7e581 / 6842c73 | Pending detailed accounting | AMOLED / no gradients checks pass; native visual and icon parity still unaudited. Existing font is Figtree; do not invent Satoshi. |

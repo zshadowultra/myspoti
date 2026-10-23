@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="app.myspoti.spotify.StallTest" tests="17" skipped="0" failures="0" errors="0" timestamp="2026-10-23T20:43:43.231Z" hostname="htch-runtime" time="0.12">
+  <properties/>
+  <testcase name="stale buffering state after user pause cannot restart()" classname="app.myspoti.spotify.StallTest" time="0.002"/>
+  <testcase name="a song at its end moves on to the next song()" classname="app.myspoti.spotify.StallTest" time="0.012"/>
+  <testcase name="last song of the list()" classname="app.myspoti.spotify.StallTest" time="0.005"/>
+  <testcase name="paused mid-song()" classname="app.myspoti.spotify.StallTest" time="0.003"/>
+  <testcase name="paused by itself at the end()" classname="app.myspoti.spotify.StallTest" time="0.007"/>
+  <testcase name="paused by the user at the end()" classname="app.myspoti.spotify.StallTest" time="0.001"/>
+  <testcase name="buffering a moment()" classname="app.myspoti.spotify.StallTest" time="0.003"/>
+  <testcase name="a stuck ad is skipped twice, then the page reloads()" classname="app.myspoti.spotify.StallTest" time="0.002"/>
+  <testcase name="the queue is read when the state names no next item()" classname="app.myspoti.spotify.StallTest" time="0.001"/>
+  <testcase name="a user pause at the end never expires()" classname="app.myspoti.spotify.StallTest" time="0.001"/>
+  <testcase name="an episode at its end moves on to the next episode()" classname="app.myspoti.spotify.StallTest" time="0.001"/>
+  <testcase name="buffering for long()" classname="app.myspoti.spotify.StallTest" time="0.001"/>
+  <testcase name="a playing song is fine()" classname="app.myspoti.spotify.StallTest" time="0.005"/>
+  <testcase name="clock past the end()" classname="app.myspoti.spotify.StallTest" time="0.002"/>
+  <testcase name="an ad is never a target()" classname="app.myspoti.spotify.StallTest" time="0.001"/>
+  <testcase name="a fade never reaches volume 0()" classname="app.myspoti.spotify.StallTest" time="0.005"/>
+  <testcase name="stale playing state after user pause cannot self advance()" classname="app.myspoti.spotify.StallTest" time="0.004"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

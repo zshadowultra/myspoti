@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="app.myspoti.spotify.TransportIntentTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-10-23T20:43:33.039Z" hostname="htch-runtime" time="7.381">
+  <properties/>
+  <testcase name="a newer resume supersedes delayed page recovery()" classname="app.myspoti.spotify.TransportIntentTest" time="1.791"/>
+  <testcase name="a newer pause cancels a suspended play retry()" classname="app.myspoti.spotify.TransportIntentTest" time="0.745"/>
+  <testcase name="a newer pause cancels a suspended queue jump retry()" classname="app.myspoti.spotify.TransportIntentTest" time="0.758"/>
+  <testcase name="a newer pause cancels a suspended next retry()" classname="app.myspoti.spotify.TransportIntentTest" time="0.738"/>
+  <testcase name="a pause discards a held skip before the page becomes ready()" classname="app.myspoti.spotify.TransportIntentTest" time="1.625"/>
+  <testcase name="a newer pause cancels a suspended previous retry()" classname="app.myspoti.spotify.TransportIntentTest" time="0.787"/>
+  <testcase name="a newer resume cancels a suspended pause retry()" classname="app.myspoti.spotify.TransportIntentTest" time="0.714"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
