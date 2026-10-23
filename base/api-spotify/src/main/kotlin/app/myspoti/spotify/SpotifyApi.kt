@@ -5,12 +5,13 @@ import app.myspoti.spotify.bridge.Bridge
 import app.myspoti.spotify.bridge.BridgeHost
 import app.myspoti.spotify.bridge.service
 import app.myspoti.spotify.gql.BridgeGql
-import app.myspoti.spotify.gql.Gql
+import app.myspoti.spotify.gql.CachedGql
 import app.myspoti.spotify.gql.GqlOps
 import app.myspoti.spotify.gql.HttpGql
 import app.myspoti.spotify.gql.OpsSource
 import app.myspoti.spotify.gql.SpotifyHttp
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
@@ -46,9 +47,12 @@ class SpotifyApi(
     val opsInUse: GqlOps get() = currentOps
     private val liveOps = object : OpsSource { override val ops: GqlOps get() = currentOps }
     val httpGql = HttpGql(this.http, liveOps, fallback = BridgeGql(bridge, liveOps))
-    private val gql: Gql = httpGql
+    private val gql = CachedGql(httpGql, CoroutineScope(scope.coroutineContext + Dispatchers.IO))
 
-    fun updateOps(newOps: GqlOps) { currentOps = newOps }
+    fun updateOps(newOps: GqlOps) {
+        currentOps = newOps
+        gql.clear()
+    }
 
     override val ready: StateFlow<Boolean> = bridge.ready
     override val player = SpotifyPlayer(bridge, scope)
@@ -80,6 +84,7 @@ class SpotifyApi(
             // direct call asks the page for its current token.
             ready.filter { it }.collect {
                 this@SpotifyApi.http.forgetWebToken()
+                gql.clear()
                 try {
                     player.refresh()
                 } catch (e: kotlinx.coroutines.CancellationException) {
@@ -94,7 +99,10 @@ class SpotifyApi(
     suspend fun onPageLoaded() = bridge.inject()
 
     /** The host calls this when a Web Player page load starts (reload, renderer back). */
-    fun onPageStarting() = bridge.pageGone()
+    fun onPageStarting() {
+        gql.clear()
+        bridge.pageGone()
+    }
 
     /** True when the page's token belongs to a signed-in user (the cached one is reused). */
     suspend fun isSignedIn(): Boolean = http.isSignedIn()
