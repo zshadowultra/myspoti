@@ -1,0 +1,3 @@
+PASS: generated icon paths, palette, adaptive references, all resource XML
+PASS: actual merge script preserves fork, creates merge commit, no-ops, fails conflicts without push
+PASS: product strings say Cadence; no runtime UI gradient declarations

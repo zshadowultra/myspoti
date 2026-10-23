@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="app.myspoti.spotify.WatchdogRecoveryTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-10-23T20:55:41.211Z" hostname="htch-runtime" time="28.69">
+  <properties/>
+  <testcase name="pause then resume during a watchdog ping supersedes the old end stall()" classname="app.myspoti.spotify.WatchdogRecoveryTest" time="7.282"/>
+  <testcase name="a Connect transfer during a failed automatic skip blocks its retry()" classname="app.myspoti.spotify.WatchdogRecoveryTest" time="6.934"/>
+  <testcase name="an unknown answer cannot reuse previously local ownership for volume repair()" classname="app.myspoti.spotify.WatchdogRecoveryTest" time="0.025"/>
+  <testcase name="a locally owned end stall still advances()" classname="app.myspoti.spotify.WatchdogRecoveryTest" time="6.041"/>
+  <testcase name="remote ownership cannot repair an end stall()" classname="app.myspoti.spotify.WatchdogRecoveryTest" time="4.023"/>
+  <testcase name="unknown ownership cannot repair an end stall()" classname="app.myspoti.spotify.WatchdogRecoveryTest" time="4.053"/>
+  <testcase name="a reload ownership read cannot adopt a newer resume revision()" classname="app.myspoti.spotify.WatchdogRecoveryTest" time="0.266"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

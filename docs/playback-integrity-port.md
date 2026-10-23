@@ -37,9 +37,12 @@ App-side `SongPlayer.transport` cancels the older job in addition to its existin
 serialized mutex/latest-generation check. Pause drops the delayed skip burst,
 clears cold-start `resumeWhenReady`, and supersedes episode-resume follow-ups;
 those follow-ups now go through the transport queue. Logout cancels that job.
-Pause sources are `user`, `system-media`, `autoplay-off`, `sleep-timer` and
-`sleep-end-of-track`, logged without adding UI copy. Existing local-player
-handoff pauses have explicit log/context but still need the same queue audit.
+Ported local-player handoffs: both the initial Spotify pause and its one bounded
+follow-up go through the same latest-generation transport queue (without Connect
+pull-back). They clear cold-start resume / delayed skips, name their pause source,
+and supersede older streaming work. Local pause cancels pending app transports;
+returning to streaming starts a newer queued intent. These app paths are
+source-audited and Android-compiled, not exercised on a physical audio device.
 
 New tests exercise real bridge transient failure interleavings (play/next/
 previous/queue jump → pause, pause → resume), held skip → pause → ready, and a
@@ -60,10 +63,28 @@ Album/playlist native callers register and submit real context/order;
 `SongPlayer.playSong` keeps standalone search results context-free. Spotilol's
 uncommitted search `albumData.uri` fallback is **not adopted**: an arbitrary
 search track is not a user-selected album playback context. The existing queue
-and context/order tests remain the mechanism evidence. No new fabricated queue,
-blind toggle or ad auto-resume is introduced. Remaining automatic reload/stall
-handoff generations and Connect-ownership guards need review before Step 2 can
-be called complete; source regressions do not prove latency or audible continuity.
+and context/order tests remain the mechanism evidence. No fabricated queue,
+blind toggle or ad auto-resume is introduced.
+
+Automatic watchdog work retains the revision captured **before** suspended
+media reads / pings / page-ready callbacks. Reload, seek, onward play and every
+automatic transport retry need a positive local ownership answer. Failed or null
+ownership reads no longer inherit an earlier local answer (in Kotlin or the JS
+bridge's bounded six-second device cache). Page loss clears native media ownership.
+A completely unresponsive page has unknown ownership: log the consecutive misses,
+but do not reload and seize a possibly remote Connect session. Explicit user
+play/skip/transfer remains available; held skips are user intent, not a watchdog
+inventing a new command. Automatic preload/fade also requires known local ownership.
+App pull-back checks cancellation after its device read/transfer and checks the
+latest generation before the final user command.
+
+`WatchdogRecoveryTest` exercises real watcher/bridge interleavings: remote and
+unknown end stalls do nothing, a known-local end stall still advances, pause →
+resume while ping is suspended prevents the old advance, page-ready ownership
+read cannot adopt a newer resume, an automatic failed skip loses retry permission
+when Connect transfers away, and a null read cannot reuse previous local ownership
+for volume repair. These are regression/source evidence, not measured latency or
+audible screen-off continuity.
 
 ## 4. Background sound / foreground service / focus
 

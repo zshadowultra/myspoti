@@ -505,6 +505,7 @@ object SongPlayer {
                 }
                 if (gen != transportGen.get()) return@withLock
                 if (pullBack && api.ready.value) takeBackPlayback()
+                if (gen != transportGen.get()) return@withLock
                 // A cancellation of the caller is never swallowed (it must unwind); only the
                 // transport's own timeout and a real failure are logged here.
                 try {
@@ -631,7 +632,12 @@ object SongPlayer {
         resumeWhenReady = false
         main.removeCallbacks(sendSkips)
         pendingSkips = 0
-        if (LocalPlayer.active.value) { LocalPlayer.pause(); return }
+        if (LocalPlayer.active.value) {
+            transportGen.incrementAndGet()
+            transportJob?.cancel()
+            LocalPlayer.pause()
+            return
+        }
         intendPaused()
         positionMs = getCurrentPosition(); positionAt = SystemClock.elapsedRealtime(); playing = false
         transport(pullBack = false) { api.player.pause() }
@@ -1021,7 +1027,9 @@ object SongPlayer {
         // in the log because the day it becomes slow, that line says so.
         devicesFreshUntil = 0L
         val started = System.currentTimeMillis()
-        kotlinx.coroutines.withTimeoutOrNull(DEVICES_WAIT_MS) { runCatching { api.devices.refresh() } }
+        kotlinx.coroutines.withTimeoutOrNull(DEVICES_WAIT_MS) {
+            runCatching { api.devices.refresh() }.onFailure { if (it is kotlinx.coroutines.CancellationException) throw it }
+        }
         Log.i(TAG, "device list read in ${System.currentTimeMillis() - started} ms")
         val active = api.devices.devices.value.firstOrNull { it.active }
         _activeDevice.value = active?.takeIf { !it.local }?.let { ConnectDevice(it.id, it.name, it.type, false, true) }
@@ -1034,7 +1042,9 @@ object SongPlayer {
         val before = api.player.state.value?.let { s -> s.item?.uri?.let { uri -> uri to s.positionAt(System.currentTimeMillis()) } }
         // Bounded: a transfer from a device that went away can leave the page's promise
         // pending for ever, and every later command waiting behind it.
-        val pulled = kotlinx.coroutines.withTimeoutOrNull(PULL_BACK_WAIT_MS) { runCatching { api.devices.pullHere() } }
+        val pulled = kotlinx.coroutines.withTimeoutOrNull(PULL_BACK_WAIT_MS) {
+            runCatching { api.devices.pullHere() }.onFailure { if (it is kotlinx.coroutines.CancellationException) throw it }
+        }
         // Whatever happened, the list just changed under us: read it again next time.
         devicesFreshUntil = 0L
         if (pulled?.isSuccess != true) Log.w(TAG, "pull here failed: ${pulled?.exceptionOrNull()?.message ?: "no answer"}")
@@ -1213,7 +1223,12 @@ object SongPlayer {
         localStartedAt = SystemClock.elapsedRealtime()
         engineUriBeforeLocal = _nowPlaying.value.uri
         engineRepaused = false
-        if (playing) command { api.player.pause() }
+        Log.i(TAG, "pause (local-source-handoff)")
+        resumeWhenReady = false
+        main.removeCallbacks(sendSkips)
+        pendingSkips = 0
+        intendPaused()
+        transport(pullBack = false) { api.player.pause() }
         playing = false
         // The local player keeps the output open itself; the engine's states, which
         // would close the silent stream, are ignored while it plays.
@@ -1238,7 +1253,8 @@ object SongPlayer {
         if (s.item?.uri == engineUriBeforeLocal && !engineRepaused) {
             engineRepaused = true
             Log.i(TAG, "engine still playing under a local file: pausing it again")
-            command { api.player.pause() }
+            Log.i(TAG, "pause (local-source-retry)")
+            transport(pullBack = false) { api.player.pause() }
             return true
         }
         Log.i(TAG, "engine started playing: the local player yields")

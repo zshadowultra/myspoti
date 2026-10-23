@@ -258,7 +258,7 @@
       const me = (await need().resolve('ConnectDevicesAPI').getDevices()).find(d => d.isLocal);
       activeValue = !!(me && me.isActive);
       activeAt = now;
-    } catch (e) { /* unknown: the caller keeps the last answer */ }
+    } catch (e) { activeValue = null; activeAt = 0; /* stale ownership is not recovery permission */ }
     return activeValue;
   };
 

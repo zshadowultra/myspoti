@@ -1,6 +1,6 @@
 # Cadence / Spotilol parity — work checkpoint
 
-2026-10-23, supervised port chunks. **Not a completed parity report.** `port-brief.md` and the extraction `INDEX.md` were read in full; work is intentionally in order. Step 0's JVM cache slice is committed and retained, and its Android gate is now green. Step 1's native dock implementation and ten new regressions are Android-Gradle verified; device visual/accessibility acceptance remains open. Step 2's transport/snapshot regression slice is verified via the repo JVM/Android gates; the full playback audit is not complete. `LESSONS.md` retains cache mechanisms and the earlier JVM test boundaries. No push. **Next: Step 2 playback-integrity audit, then Steps 3–4 and the complete final ledger.**
+2026-10-23, supervised port chunks. **Not a completed parity report.** `port-brief.md` and the extraction `INDEX.md` were read in full; work is intentionally in order. Step 0's JVM cache slice is committed and retained, and its Android gate is now green. Step 1's native dock implementation and ten new regressions are Android-Gradle verified; device visual/accessibility acceptance remains open. Step 2's snapshot, transport retry, watchdog/Connect ownership and local-handoff source slices are verified via the repo JVM/Android gates; device audio acceptance remains open. `LESSONS.md` retains cache mechanisms and the earlier JVM test boundaries. No push. **Next: Step 3 performance, then Step 4 and the complete final ledger.**
 
 ## Historical gate / continuation (superseded by Chunk 5 below)
 
@@ -81,13 +81,55 @@ screen-off continuity. Task-dismissal/detached WebView visibility still needs
 real device evidence. Steps 3–4 and final complete speed/visual/data ledger were
 not started out of order. No push, no dependency/version downgrade.
 
+## Chunk 7 — watchdog / Connect ownership / local handoff
+
+Retained Step 0 and the committed dock/playback verification. Rechecked the
+specific historical dependency only: exact Glide Compose AAR HEAD **200**,
+Content-Length **128586**, local mirror `127.0.0.1:8899`; no repeat of the old
+Step 0 verification slice. The original `chunk2-android-final.log`, exit 1,
+remains historical evidence, not a current environment blocker.
+
+Closed the remaining automatic transport handoffs: capture revisions before
+suspended media reads/pings and ready callbacks; carry them through reload and
+onward/seek commands, with positive local Connect ownership before recovery and
+each retry. Kotlin null ownership no longer inherits a prior local answer; JS
+clears expired ownership on a failed refresh. Page loss clears native ownership.
+A frozen/unanswering page has **unknown ownership**: consecutive-miss diagnostics
+remain, but automatic reload/claim is deliberately withheld rather than seizing a
+possibly remote session. Explicit user transport/transfer is retained. Preload
+and fades require known-local ownership. Both local-source handoff pauses now
+use the latest-generation queue, clear cold-start resume/delayed skips, and log
+`local-source-handoff` / `local-source-retry`; app pull-back preserves cancellation
+and rechecks generation before issuing the final command.
+
+First serial gate **failed**, exit **1**, `docs/port-evidence/chunk7-playback.log`:
+83 JVM tests / 2 assertion failures. Both incorrectly counted `player.preloadNext`
+as a transport command; XML showed the expected pause/resume/next and only that
+extra preload. Corrected the test's explicit transport-method filter and added
+automatic-retry transfer plus stale-null-ownership regressions. No production
+failure is attributed to Maven.
+
+Frozen-source serial retry from `base/`, exact repo entry points
+`./gradlew -I /tmp/cadence-early-mirror.gradle :api-spotify:test testDebugUnitTest assembleDebug --no-configuration-cache`,
+**BUILD SUCCESSFUL in 1m 5s**, exit **0**:
+`docs/port-evidence/chunk7-playback-retry.log` / `.exit`. XML totals **api-spotify
+85 passed, app 189 passed, host-android 8 passed; 0 failures/errors/skips**,
+including seven real-bridge/watchdog regressions (`WatchdogRecoveryTest`). Summary
+and regression XML are durable in `docs/port-evidence/`. APK rebuilt. Static
+fork/style gate exit **0**, `chunk7-fork-check.log` / `.exit`. No Step 0-specific
+JVM/account-gated CDP gate repeated. `adb devices` reports **no devices attached**;
+no physical local-handoff, screen-off, task-dismissal, TalkBack or audible playback
+proof is claimed. `docs/playback-integrity-port.md` now accounts for all four
+symptoms and extraction leftovers at the source/repo-test boundary. **Step 2's
+code/source audit is complete; device acceptance remains explicitly open.**
+
 ## Parity ledger (pending is deliberately not a final disposition)
 
 | Source from extraction INDEX | Disposition | Evidence / remaining work |
 |---|---|---|
 | Stranded lessons / catalog-search caching | Ported; repo JVM and Android gates verified | `b6e25e1` implementation; `87d1dd1` recovery-compatible regression. JVM: 68 passed / 31 account-gated skipped (`chunk2-jvm-retry.log`, exit 0). Android: `chunk5-android-root.log`, exit 0. `SpotifyApi.kt`, `gql/CachedGql.kt`, cache lifecycle/live tests; bounded LRU, TTL/SWR, single-flight, failure backoff, session invalidation. Existing home/library caches retained. |
 | Nav a163288 / b0908b9 / c197801 (including reduced motion) | Ported natively; Android gate verified; device visual/accessibility proof pending | `MainBottomNavigation.kt`, `DockMiniPlayer.kt`, `DockScrollController.kt`, policy + ten regressions; `docs/native-dock.md`. Both source docs and reference files read. Actual repo Android gates exit 0, 197 native tests passed. Native system animator-scale support replaces CSS media query; Figtree replaces absent native Satoshi. No HTML/CSS copied or screenshot acceptance asserted. |
-| Playback dcfb50e / 5a2dd1c | Step 2 snapshot / desired-state retry slice ported; full audit pending | `docs/playback-integrity-port.md`; immutable PlayerAPI/Compose metadata already present, new real-bridge interleaving + transport-generation regressions. Repo gate exit **0** (`chunk6-playback-retry.log`); 275 tests passed, including ten new regressions. Remaining watchdog/reload/ownership and local handoff audit next. |
+| Playback dcfb50e / 5a2dd1c | Ported native transport/watchdog protection; atomic metadata and lifecycle policy already present; device acceptance open | `docs/playback-integrity-port.md`; immutable PlayerAPI/Compose metadata, real-bridge interleaving and generation/ownership regressions. Repo gates exit **0** (`chunk6-playback-retry.log`, `chunk7-playback-retry.log`); latest 282 tests passed. No permission to repair from unknown/remote ownership; local-source pauses serialized. Audible screen-off continuity is not claimed. |
 | Uncommitted integrity leftovers (app.js, CustomUI.kt, AndroidAuto.kt, AndroidTracker.kt, PowerSave.kt + working-tree.diff) | Reviewed; per-file native/already-present/N/A dispositions recorded | `docs/playback-integrity-port.md`: native context transport, atomic metadata/media session, no global timer throttling; DOM bridge/overlay N/A. Arbitrary search album-context fallback intentionally not adopted. No extra UI copy; device audio proof not claimed. |
 | Earlier UI/data 736227e | Pending detailed accounting | Compare extracted wiring against native API/UI; no mock data. |
 | Perf 5b7aeb4 / PERF.md | Pending Step 3 | Step 0 supplies catalog/search cache; existing startup, screen caches, tokens, lyrics and palette prefetch documented in `LESSONS.md`. Must read findings before final dispositions. |
