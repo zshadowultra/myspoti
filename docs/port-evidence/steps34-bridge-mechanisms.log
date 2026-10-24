@@ -1,0 +1,2 @@
+boot root: descendant queries=1; fallback + 100 mutations=2
+PASS actual bridge boot, scoped/coalesced lookup and async request-ID result

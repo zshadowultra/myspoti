@@ -1,6 +1,6 @@
 # Cadence / Spotilol parity — work checkpoint
 
-2026-10-23, supervised port chunks. **Not a completed parity report.** `port-brief.md` and the extraction `INDEX.md` were read in full; work is intentionally in order. Step 0's JVM cache slice is committed and retained, and its Android gate is now green. Step 1's native dock implementation and ten new regressions are Android-Gradle verified; device visual/accessibility acceptance remains open. Step 2's snapshot, transport retry, watchdog/Connect ownership and local-handoff source slices are verified via the repo JVM/Android gates; device audio acceptance remains open. `LESSONS.md` retains cache mechanisms and the earlier JVM test boundaries. No push. **Next: Step 3 performance, then Step 4 and the complete final ledger.**
+2026-10-24, supervised port chunks. **Steps 0–2 and lyrics are completed and retained; Steps 3–4 source dispositions are recorded below.** This is code/repo-test parity, not measured device performance or screenshot/audio acceptance. Step 3 retains the verified library memoization and native performance mechanisms, and fixes scrub cancellation/duration capture. Step 4 ports source + compiled UTF8 guards. See `docs/performance-parity-port.md` and the current gate receipt below. No lyrics edits, dependency downgrades or push. Historical chunk reports below describe the state at their own date and are superseded by the final ledger.
 
 ## Historical gate / continuation (superseded by Chunk 5 below)
 
@@ -123,18 +123,102 @@ proof is claimed. `docs/playback-integrity-port.md` now accounts for all four
 symptoms and extraction leftovers at the source/repo-test boundary. **Step 2's
 code/source audit is complete; device acceptance remains explicitly open.**
 
-## Parity ledger (pending is deliberately not a final disposition)
+## Final extraction ledger (source/repo-test scope)
 
 | Source from extraction INDEX | Disposition | Evidence / remaining work |
 |---|---|---|
 | Stranded lessons / catalog-search caching | Ported; repo JVM and Android gates verified | `b6e25e1` implementation; `87d1dd1` recovery-compatible regression. JVM: 68 passed / 31 account-gated skipped (`chunk2-jvm-retry.log`, exit 0). Android: `chunk5-android-root.log`, exit 0. `SpotifyApi.kt`, `gql/CachedGql.kt`, cache lifecycle/live tests; bounded LRU, TTL/SWR, single-flight, failure backoff, session invalidation. Existing home/library caches retained. |
-| Nav a163288 / b0908b9 / c197801 (including reduced motion) | Ported natively; Android gate verified; device visual/accessibility proof pending | `MainBottomNavigation.kt`, `DockMiniPlayer.kt`, `DockScrollController.kt`, policy + ten regressions; `docs/native-dock.md`. Both source docs and reference files read. Actual repo Android gates exit 0, 197 native tests passed. Native system animator-scale support replaces CSS media query; Figtree replaces absent native Satoshi. No HTML/CSS copied or screenshot acceptance asserted. |
+| Nav a163288 / b0908b9 / c197801 (including reduced motion) | Ported natively; Android gate verified; device visual/accessibility acceptance separate | `MainBottomNavigation.kt`, `DockMiniPlayer.kt`, `DockScrollController.kt`, policy + ten regressions; `docs/native-dock.md`. Both source docs and reference files read. Actual repo Android gates exit 0, 197 native tests passed. Native system animator-scale support replaces CSS media query; Figtree replaces absent native Satoshi. No HTML/CSS copied or screenshot acceptance asserted. |
 | Playback dcfb50e / 5a2dd1c | Ported native transport/watchdog protection; atomic metadata and lifecycle policy already present; device acceptance open | `docs/playback-integrity-port.md`; immutable PlayerAPI/Compose metadata, real-bridge interleaving and generation/ownership regressions. Repo gates exit **0** (`chunk6-playback-retry.log`, `chunk7-playback-retry.log`); latest 282 tests passed. No permission to repair from unknown/remote ownership; local-source pauses serialized. Audible screen-off continuity is not claimed. |
 | Uncommitted integrity leftovers (app.js, CustomUI.kt, AndroidAuto.kt, AndroidTracker.kt, PowerSave.kt + working-tree.diff) | Reviewed; per-file native/already-present/N/A dispositions recorded | `docs/playback-integrity-port.md`: native context transport, atomic metadata/media session, no global timer throttling; DOM bridge/overlay N/A. Arbitrary search album-context fallback intentionally not adopted. No extra UI copy; device audio proof not claimed. |
-| Earlier UI/data 736227e | Pending detailed accounting | Compare extracted wiring against native API/UI; no mock data. |
-| Perf 5b7aeb4 / PERF.md | Pending Step 3 | Step 0 supplies catalog/search cache; existing startup, screen caches, tokens, lyrics and palette prefetch documented in `LESSONS.md`. Must read findings before final dispositions. |
-| Visual ad7e581 / 6842c73 | Pending detailed accounting | AMOLED / no gradients checks pass; native visual and icon parity still unaudited. Existing font is Figtree; do not invent Satoshi. |
-| FEATURE-GAP.md / SPOTIFY-SPEED.md | Pending Step 3 action-table accounting | Research is not an instruction to implement every speculative feature; account for each relevant action with mechanism evidence or native/WebView N/A reason. |
-| UTF-8 44d46ff + check-kotlin-string-size.py | Pending Step 4 | Do the analogous source/compiled string check after Steps 0–3, in order. |
+| Earlier UI/data 736227e | Already present native equivalents; injection compatibility N/A | `docs/performance-parity-port.md` wiring table: actual typed title/art/range, Home feed, root/folder library, cancellable real search, URI/context transports, auth/errors. No demo data or DOM sidebar copied. |
+| Perf 5b7aeb4 / PERF.md | Ported missing native scrub behavior and library memoization; remaining mechanisms already present / injection-only N/A | `SeekPreview.kt` + three regressions; `bfd7005` root assembly + four retained regressions. Full per-action reasons in `docs/performance-parity-port.md`; typed async HTTP, native Canvas, cached Home, service events replace shell seams. Step 0 caches untouched. |
+| Visual ad7e581 / 6842c73 | Already present native static rules; HTML/Satoshi assets N/A | Black `AppBackground` and Material surfaces, bundled Figtree, Solar Bold native controls; fork/style checker. Reference/findings commit has no additional native runtime code. No gradients, type swap, lyrics changes or new UI text. Visual/device acceptance is not claimed. |
+| FEATURE-GAP.md / SPOTIFY-SPEED.md | Resolved: native mechanisms already present / justified N/A; see all 20 actions below | Feature expansion roadmap N/A to Steps 3–4: no new social/commerce/DSP/entitlement writes. Preserve existing native APIs without treating interfaces as live proof. `docs/performance-parity-port.md` gives scope and exclusions. |
+| UTF-8 44d46ff + check-kotlin-string-size.py | Guard ported; oversized injection split N/A | `tools/check_kotlin_string_size.py`, six Python regressions, CI source/compiled modes; actual project CONSTANT_Utf8 inspection after Gradle. Native bridge is a resource, not Spotilol's 68,422-byte literal. Gate/size receipts below. |
 
-Final completion must replace every pending row and expand the ledger to cover all extracted changes and the 20-row speed table. No completed port, visual acceptance, device latency, or playback continuity claim is made by this checkpoint.
+## Step 3 — all 20 SPOTIFY-SPEED closing actions
+
+“Already present” means the concrete native mechanism, not proven latency parity.
+N/A reasons apply to the proposed adaptation, not a claim that upstream behavior
+is absent. No speculative network feature or new measured speed promise.
+
+| # / action | Disposition | Concrete reason / source evidence |
+|---|---|---|
+| 1 Typed reads / page-service commands | Already present | `SpotifyApi.kt` / `gql/Gql.kt` shared typed HTTP; `player-bridge.js::player.play` uses page services. No UI DOM navigation/scraping adapter needed. |
+| 2 Single-flight / tokens / bounded freshness | Already present | `SongPlayer.libraryContains` shared reads + 60s saved freshness; token mutex in `Gql.kt`; completed Step 0 bounded catalog/search cache. Mutations are not deduplicated. |
+| 3 Idempotent boot / ready | Already present | `Bridge.kt::inject/pageGone`, `player-bridge.js` existing bootstrap/reannouncement guard, `MyspotiRuntime` retained token. Duplicate page-finished events do not reinstall collectors. |
+| 4 Dealer/service pushes vs polling | Already present; second Dealer N/A | `player-bridge.js` listens to `update`/`queue_update` and suppresses equal state; `SpotifyPlayer` keeps health watchdog. Official page owns Dealer, so a competing native socket is not justified. |
+| 5 Changed media/notification publication | Already present | `player-bridge.js::pushState` equality; `PlaybackService`/`SongPlayer` metadata keys; shared health reads. Progress remains local, not notification work every frame. |
+| 6 Local progress / finger-owned scrub | Ported missing portion; clock already present | Native Canvas + local `MusicVideoController.position`; `SeekPreview` captures duration, release commits once, cancel never seeks. Video/podcast cancel previews too. Three new native regressions; no per-move page seek. |
+| 7 Persisted operation hashes | Already present | `Gql.kt` persisted queries and `GqlOpsUpdater` build/hash table. No hash-only server-cache claim or mutation replay. |
+| 8 Paged catalog/library reads | Already present APIs and incremental playlist/liked UI; new on-demand contract N/A | `SpotifyLibrary` / `SpotifyContent` offsets/limits; `Api.getPlaylistPage/getLikedPage` emit growing snapshots before completion. Current album/full-library sort/queue contract deliberately consumes complete data; shell-only scroll-demand callbacks cannot be copied without changing that contract. Album assembly still eager, not advertised as lazy parity. |
+| 9 Batched protobuf metadata / TTLs | N/A to new transport/decoder; typed metadata already present | Current GQL returns text/structured JSON and already includes row fields; no missing-entity batch workload or verified native protobuf decoder in extraction. Binary endpoint/TTL engine would be new protocol work, not a demonstrated native perf fix. Step 0 explicit read TTLs retained, not relabeled endpoint TTLs. |
+| 10 Artwork variants / colors | Already present native size selection; gradients N/A | `Mappers.kt` preserves dimensions; `Api.cover` selects best(300), `big` best(640); Glide/lazy rows decode at target bounds, not universally largest art. Existing `DockMiniPlayer` palette/Canvas owner retained. Do not turn colors into gradients or add a second prefetcher. No claimed measured image-transfer saving. |
+| 11 Revision-aware sync / write reconciliation | Already present confirmed local writes; new delta engine N/A | `SpotifyLibrary.changes`, `SongPlayer.setSaved` failure/read-back and `likedChanges`, `ContextViewModel` refresh/rollback. Full cross-device native revision/delta engine is not implemented or claimed; extraction only proposes it and supplies no verified delta adapter to port. |
+| 12 Persisted cached-first warm screens | Already present | `ScreenCache` private home/library/liked snapshots + ordered writes/clear; `HomeCache`, `ContextViewModel.recent` set cached state before first composition. Cached metadata is not offline audio. |
+| 13 Workbox caches | Already present host policy; worker policy change N/A | `WebPlayerHost` DOM storage/LOAD_DEFAULT; no WorkerNeutralize injection. Preserve official page behavior. Without device enabled/disabled A/B, do not force unregister/register or claim actual active-worker coverage. |
+| 14 Hashed assets / split boot | Already present | Official page uses default cache, `GqlOpsUpdater` caches by bundle/build identity; native screen cache paints independently of page readiness. No custom HTML shell/chunk-map loader to port. No prefetch of all 164 chunks or startup-budget claim. |
+| 15 Preconnect / pooling / discovery | Already present preservation; new regional tuning N/A | Shared `SpotifyHttp` client and unchanged official page networking/hints. Native/WebView pools differ; no captured native apresolve contract or proven HTTP/3 negotiation justifies hard-coded endpoint/pool changes. |
+| 16 Nearby/multi-CDN edge placement | N/A | Spotify-owned edge deployment/VCL is server infrastructure, not an app hook. Official playback URLs/services remain unchanged; disabled media proxy stays disabled. |
+| 17 Range/chunks / BBR | N/A | Official DRM/audio pipeline owns streaming; client has no server congestion-control knob. Historical BBR research did not improve click-to-sound; no new range streamer or signed-URL rewriting. |
+| 18 Queue-aware next preload | Already present | `player-bridge.js::player.preloadNext`; `SpotifyPlayer.preloadNextSong` gates/deduplicates, including completed Step 2 local ownership guards. No competing preload chain or gapless prediction claim. |
+| 19 Stable/windowed lists / memoization | Ported remaining library slice; context already present | `bfd7005` `RootLibrary` derived assembly + remembered filtering; four `RootLibraryTest` cases retained/verified. `ContextScreen` LazyColumn/stable occurrence keys/derived filter-sort; native frame Canvas has no DOM read/write thrash. |
+| 20 Integer-helper WASM | N/A | Official page runs its shipped integer helpers; no extraction evidence of UI/audio-decoder WASM or adoptable speed win. Native Compose needs no additional WASM runtime. |
+
+## Additional native Step 3 candidates
+
+Startup/pre-render: already present cached-first `ScreenCache`/Home state and
+`ContextViewModel.recent` seeded before composition; native Compose has no DOM
+pre-render tree to install. Boot guards are action 3. Coalesced updates are
+actions 4–5. Search prefetch/cache: Step 0 read cache and cancellable search already
+present; arbitrary query prediction N/A without user intent/workload evidence.
+Context press hints and bounded `prefetchSoon` already warm likely Home/Library
+pages. Palette/Canvas prefetch has one existing dock owner, so no duplicate work
+is introduced. Lyrics prefetch is completed/out of scope and untouched.
+
+The final ledger resolves code dispositions only. Real device visual/focus,
+TalkBack, reduced-motion, background/audio continuity and latency acceptance
+remain separate handoffs; none are claimed from fixture or Gradle success.
+
+## Steps 3–4 final gate / local commits — 2026-10-24
+
+Arrival `git log --oneline -8` proved the requested library leftovers were already
+committed (`bfd7005`) and verified (`7369b64`, retained repo gate exit 0). Reviewed
+and retained them rather than duplicating/reverting completed work. Steps 0–2
+and the completed lyrics implementation were not reworked.
+
+Native scrub correction is `879b911`; the preventive UTF8 guard is `8e2f942`.
+The first fresh native gate failed because the new mandatory cancel callback had
+two additional video/podcast call sites; both now explicitly discard previews.
+This was a source integration error, not an environment/dependency failure:
+`docs/port-evidence/steps34-scrub-gate.log` / `.exit`, exit **1**.
+Frozen-source serial retry from `base/`:
+`./gradlew -I /tmp/cadence-early-mirror.gradle testDebugUnitTest assembleDebug --no-configuration-cache`
+**BUILD SUCCESSFUL in 3m**, exit **0**, `steps34-scrub-retry.log` / `.exit`.
+Exact existing JDK 21 / SDK 37r2 / wrapper 9.7.1 / dependencies retained; explicit
+GRADLE_USER_HOME, IPv4 and sandbox mirror/truststore. XML summary: **app 205,
+host-android 8 tests; 0 failures/errors/skips** (`steps34-final-summary.json`);
+new three-case scrub XML preserved. App tests actually executed in this retry;
+host tests were up-to-date. APK rebuilt at
+`base/app/build/outputs/apk/debug/app-debug.apk`.
+
+Step 4 source + compiled checks exit **0** (`steps34-utf8.log` / `.exit`):
+**5,502 literals / 255 Kotlin files**, largest literal **4,330 bytes**;
+**285,700 UTF8 constants / 2,326 project classes, including 3 built project jars**,
+largest compiled entry **13,448 bytes**. Both below the **60,000-byte** safety
+budget. Six Python checker regressions exit **0** (`steps34-utf8-tests.log` /
+`.exit`). Old checker template/raw delimiter failures were repaired, not ignored;
+compiled audit was rerun only after Gradle finished rewriting its outputs.
+
+Static fork/style gate exit **0** (`steps34-final-style.log` / `.exit`): product
+naming, resource XML, merge policy and no runtime gradients. Actual page bridge
+lesson mechanism test exit **0** (`steps34-bridge-mechanisms.log` / `.exit`):
+scoped/coalesced boot lookup and async request-ID result. This supplemental JS
+mechanism check is not the Android gate or device audio proof. Completed Step 0
+JVM/account-gated suites were not rerun. No lyrics changes; no push.
+
+All extraction and 20 speed-table rows now have a source disposition; no ledger
+row is awaiting implementation/accounting. Supplied local brief files remain
+unchanged/untracked inputs, not generated production work. All code, tools,
+ledger updates and gate evidence from this chunk are committed locally on main.
