@@ -271,109 +271,111 @@ fun LyricsScreen(
     val targetLanguage = getLyricTranslateLang(context).ifBlank { Locale.getDefault().language.ifBlank { "en" } }
     var menu by remember { mutableStateOf(false) }
 
-    Box(Modifier.fillMaxSize().background(Color.Black).testTag("lyrics-page")
-        .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null, onClick = {})) {
-    LyricsArtwork(artworkUri)
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .statusBarsPadding()
-            .navigationBarsPadding(),
+    Box(
+        Modifier.fillMaxSize().background(Color.Black).testTag("lyrics-page")
+            .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null, onClick = {}),
     ) {
-        // ── Header: close, title / artist, more ──
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth().height(64.dp).padding(horizontal = 4.dp),
+        LyricsArtwork(artworkUri)
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .statusBarsPadding()
+                .navigationBarsPadding(),
         ) {
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier.size(48.dp).clickable(
-                    interactionSource = remember { MutableInteractionSource() }, indication = null, onClick = onClose,
-                ),
+            // ── Header: close, title / artist, more ──
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth().height(64.dp).padding(horizontal = 4.dp),
             ) {
-                Icon(painterResource(R.drawable.ic_lyrics_close), contentDescription = stringResource(R.string.lyrics_fullscreen_close_button_readout_value), tint = palette.highlight, modifier = Modifier.size(32.dp))
-            }
-            Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)) {
-                Text(title, color = palette.highlight, fontSize = 14.sp, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                Text(artist, color = palette.highlight.copy(alpha = 0.75f), fontSize = 13.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            }
-            Box {
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier.size(48.dp).clickable(
-                        interactionSource = remember { MutableInteractionSource() }, indication = null,
-                    ) { menu = true },
+                        interactionSource = remember { MutableInteractionSource() }, indication = null, onClick = onClose,
+                    ),
                 ) {
-                    Icon(painterResource(R.drawable.ic_lyrics_menu), contentDescription = stringResource(R.string.content_description_context_menu), tint = palette.highlight)
+                    Icon(painterResource(R.drawable.ic_lyrics_close), contentDescription = stringResource(R.string.lyrics_fullscreen_close_button_readout_value), tint = palette.highlight, modifier = Modifier.size(32.dp))
                 }
-                LyricsMenu(
-                    expanded = menu,
-                    onDismiss = { menu = false },
-                    canTranslate = state is LyricsViewModel.State.Loaded,
-                    translating = (state as? LyricsViewModel.State.Loaded)?.showTranslation == true,
-                    onTranslate = { vm.toggleTranslation(targetLanguage) },
-                    onReload = { SongPlayer.currentLyricsTrack()?.let { vm.load(it, force = true) } },
-                )
-            }
-        }
-
-        when (state) {
-            is LyricsViewModel.State.Loading ->
-                Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(color = palette.highlight)
+                Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)) {
+                    Text(title, color = palette.highlight, fontSize = 14.sp, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    Text(artist, color = palette.highlight.copy(alpha = 0.75f), fontSize = 13.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
-            is LyricsViewModel.State.NotFound ->
-                Box(Modifier.weight(1f).fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
-                    Text(stringResource(R.string.lyrics_fullscreen_no_lyrics_error_version_two), color = palette.highlight, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                }
-            is LyricsViewModel.State.Loaded -> {
-                val l = state.lyrics
-                // Translation is requested by onTranslate; do not upload lyrics on screen entry.
-                val timing = remember(l) { LyricsTiming(l, SongPlayer.getDuration()) }
-                val active by remember(timing) { derivedStateOf { timing.activeIndex(position()) } }
-                val interlude by remember(timing) { derivedStateOf { timing.interludeIndex(position()) } }
-                val focus = if (interlude >= 0) interlude else active
-                val listState = rememberLazyListState()
-                BoxWithConstraints(Modifier.weight(1f).fillMaxWidth()) {
-                    SpringLyricsFollow(listState, focus, enabled = l.synced)
-                    LazyColumn(
-                        state = listState,
-                        modifier = Modifier.fillMaxSize().testTag("lyrics-lines"),
-                        // Half-window padding lets even the first/last line reach the center.
-                        contentPadding = PaddingValues(horizontal = 28.dp, vertical = if (l.synced) maxHeight / 2 else 16.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                Box {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier.size(48.dp).clickable(
+                            interactionSource = remember { MutableInteractionSource() }, indication = null,
+                        ) { menu = true },
                     ) {
-                        itemsIndexed(timing.lines, key = { i, line -> "${line.startMs}:$i" }) { i, line ->
-                            SweepingLyricLine(
-                                line = line,
-                                current = i == active && interlude < 0,
-                                past = !l.synced || i < active || (interlude >= 0 && i == active),
-                                interlude = i == interlude,
-                                opacity = lyricOpacity(i, focus),
-                                position = position,
-                                translation = if (state.showTranslation) state.translations?.getOrNull(i) else null,
-                                modifier = if (l.synced) Modifier.clickable(
-                                    interactionSource = remember { MutableInteractionSource() },
-                                    indication = null,
-                                ) { jumpTo(line.startMs) } else Modifier,
-                            )
+                        Icon(painterResource(R.drawable.ic_lyrics_menu), contentDescription = stringResource(R.string.content_description_context_menu), tint = palette.highlight)
+                    }
+                    LyricsMenu(
+                        expanded = menu,
+                        onDismiss = { menu = false },
+                        canTranslate = state is LyricsViewModel.State.Loaded,
+                        translating = (state as? LyricsViewModel.State.Loaded)?.showTranslation == true,
+                        onTranslate = { vm.toggleTranslation(targetLanguage) },
+                        onReload = { SongPlayer.currentLyricsTrack()?.let { vm.load(it, force = true) } },
+                    )
+                }
+            }
+
+            when (state) {
+                is LyricsViewModel.State.Loading ->
+                    Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator(color = palette.highlight)
+                    }
+                is LyricsViewModel.State.NotFound ->
+                    Box(Modifier.weight(1f).fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
+                        Text(stringResource(R.string.lyrics_fullscreen_no_lyrics_error_version_two), color = palette.highlight, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    }
+                is LyricsViewModel.State.Loaded -> {
+                    val l = state.lyrics
+                    // Translation is requested by onTranslate; do not upload lyrics on screen entry.
+                    val timing = remember(l) { LyricsTiming(l, SongPlayer.getDuration()) }
+                    val active by remember(timing) { derivedStateOf { timing.activeIndex(position()) } }
+                    val interlude by remember(timing) { derivedStateOf { timing.interludeIndex(position()) } }
+                    val focus = if (interlude >= 0) interlude else active
+                    val listState = rememberLazyListState()
+                    BoxWithConstraints(Modifier.weight(1f).fillMaxWidth()) {
+                        SpringLyricsFollow(listState, focus, enabled = l.synced)
+                        LazyColumn(
+                            state = listState,
+                            modifier = Modifier.fillMaxSize().testTag("lyrics-lines"),
+                            // Half-window padding lets even the first/last line reach the center.
+                            contentPadding = PaddingValues(horizontal = 28.dp, vertical = if (l.synced) maxHeight / 2 else 16.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            itemsIndexed(timing.lines, key = { i, line -> "${line.startMs}:$i" }) { i, line ->
+                                SweepingLyricLine(
+                                    line = line,
+                                    current = i == active && interlude < 0,
+                                    past = !l.synced || i < active || (interlude >= 0 && i == active),
+                                    interlude = i == interlude,
+                                    opacity = lyricOpacity(i, focus),
+                                    position = position,
+                                    translation = if (state.showTranslation) state.translations?.getOrNull(i) else null,
+                                    modifier = if (l.synced) Modifier.clickable(
+                                        interactionSource = remember { MutableInteractionSource() },
+                                        indication = null,
+                                    ) { jumpTo(line.startMs) } else Modifier,
+                                )
+                            }
                         }
                     }
+                    val sameLanguage = state.sourceLanguage?.substringBefore('-')
+                        ?.equals(targetLanguage.substringBefore('-'), ignoreCase = true) == true
+                    LyricsControls(
+                        palette = palette,
+                        position = position,
+                        showTranslate = state.translationChecked && !sameLanguage,
+                        translationActive = state.showTranslation,
+                        translating = state.translating && state.translationRequested,
+                        onTranslate = { vm.toggleTranslation(targetLanguage) },
+                        onShare = { shareLyrics(context, title, artist, l.lines.getOrNull(active)?.text) },
+                    )
                 }
-                val sameLanguage = state.sourceLanguage?.substringBefore('-')
-                    ?.equals(targetLanguage.substringBefore('-'), ignoreCase = true) == true
-                LyricsControls(
-                    palette = palette,
-                    position = position,
-                    showTranslate = state.translationChecked && !sameLanguage,
-                    translationActive = state.showTranslation,
-                    translating = state.translating && state.translationRequested,
-                    onTranslate = { vm.toggleTranslation(targetLanguage) },
-                    onShare = { shareLyrics(context, title, artist, l.lines.getOrNull(active)?.text) },
-                )
             }
         }
-    }
     }
 }
 

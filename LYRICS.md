@@ -36,6 +36,14 @@ Solar close/menu/expand/share/translation/play/pause/check use preserved 480 Des
 
 Checks: generator executed, vectors parsed as XML, `git diff --check`. No Android build/device result claimed for this recovery commit.
 
+## 2026-10-24 · chunk 4 / bounded artwork blur
+
+Finished the fallback rather than relying on low-resolution pixelation: Glide decodes at most 64 × 64, disables hardware bitmaps and applies a cached `BitmapTransformation` on its worker thread. Three separable box-blur passes, **radius 8 source pixels**, approximate a heavy Gaussian on every supported API; API 31+ adds Compose's static **48 dp** platform blur. Border sampling clamps so the bitmap itself has no dark/transparent halo. No image transition, no gradient, no frame-clock work. Pixel buffers are bounded to 4,096 pixels and allocated only per artwork transform. The transformation's versioned disk key includes size/radius/pass settings.
+
+The cover crop remains full-screen beneath a **flat black alpha 0.68**. Missing/blank/failed covers reveal the existing pure black backing surface; an artwork-URI composition key prevents the preceding track's image from being retained on a new-track failure. Added five JUnit4 regressions for uniform colours/opaque edges, two-axis spreading/source immutability, rectangular/one-pixel covers, and input bounds. Solar attribution now also appears in README Credits. Cleaned the recovered full-screen nesting/indentation; no timing parameters changed.
+
+Build assumption correction: `LESSONS.md`/workspace tooling show JDK 21 + SDK 37.0 are now available, despite the inherited brief's “no local Java” note. Started the real repository Gradle gate serially (`:app:testDebugUnitTest :app:assembleDebug :api:test :api-spotify:test :host-cdp:test`, exact Gradle 9.7.1, offline caches). Result is **pending** at this commit; receipts will be checkpointed before finishing. CI still has not run for local-only commits; no push.
+
 ## Device-unverified (must remain pending)
 - Actual word/syllable sweep, wrapped words, punctuation, RTL/CJK layout and font clipping.
 - Frame pacing/allocations/recomposition on a real Android device (normal + saver modes); provider correction/Connect drift, buffering, pause/resume, local tracks and rapid track changes.

@@ -105,6 +105,7 @@ Every push builds and tests on GitHub Actions. A `v*` tag publishes a signed APK
 - UI derived from [Spotui](https://github.com/Spotui/Spotui) / [Metrolist](https://github.com/MetrolistGroup/Metrolist) (GPL-3.0).
 - [NewPipeExtractor](https://github.com/TeamNewPipe/NewPipeExtractor) (GPL-3.0).
 - [Material Icons](https://github.com/google/material-design-icons) (Apache 2.0).
+- Solar Bold icons by [480 Design](https://www.figma.com/community/file/1166831539721848736) ([CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)); lyrics vectors preserve the original paths, converted from SVG to Android VectorDrawable. Source metadata: `docs/assets/lyrics-solar-icons.json`.
 - [Figtree](https://github.com/erikdkennedy/figtree) font (SIL OFL 1.1, see `base/licenses/`).
 
 ## License
