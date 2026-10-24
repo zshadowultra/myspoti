@@ -44,12 +44,22 @@ The cover crop remains full-screen beneath a **flat black alpha 0.68**. Missing/
 
 Build assumption correction: `LESSONS.md`/workspace tooling show JDK 21 + SDK 37.0 are now available, despite the inherited brief's “no local Java” note. Started the real repository Gradle gate serially (`:app:testDebugUnitTest :app:assembleDebug :api:test :api-spotify:test :host-cdp:test`, exact Gradle 9.7.1, offline caches). Result is **pending** at this commit; receipts will be checkpointed before finishing. CI still has not run for local-only commits; no push.
 
+## 2026-10-24 · chunk 4 / gate complete and handoff
+
+Commits: **47cc3ff** (recovered route/artwork draft + Solar controls), **0115731** (real bounded artwork blur + regressions). Both on main; no push.
+
+Repository Gradle gate **PASSED**, exit 0, **3m 51s**: app unit tests + debug APK assembly, `:api:test` (no source), `:api-spotify:test` (up-to-date prior passing result), `:host-cdp:test`. App XML: **202 tests, zero failures/errors/skips**, including **4 LyricsTiming + 5 LyricsArtworkPixels tests** newly executed. API Spotify XML: 85 passing tests (cached task); host CDP: 31 account-only tests skipped, not a live playback proof. Gate ran against this working tree, including the pre-existing uncommitted library files; those files remain untouched/uncommitted by this session.
+
+Evidence: `docs/port-evidence/lyrics-chunk4-gate.{log,exit}` and `lyrics-chunk4-summary.json` (source commit, exact command, tooling and counts). APK produced at `base/app/build/outputs/apk/debug/app-debug.apk`, not committed. Generator/VectorDrawable XML checks and `git diff --check` also passed; stash list empty. No CI dispatch, install, native screenshot or account playback run.
+
+Next scoped step: native emulator/device verification of the existing player → lyrics route, prioritizing the API <31 bitmap fallback versus API 31+ treatment, bright/missing/failed covers and rapid track switches; then sweep/wrap/scroll/frame pacing. Do not redo timing/artwork plumbing merely because screenshots remain pending. Lyrics Plus reference lookup remains pending; current motion is an adaptation, not a pixel-parity claim.
+
 ## Device-unverified (must remain pending)
 - Actual word/syllable sweep, wrapped words, punctuation, RTL/CJK layout and font clipping.
 - Frame pacing/allocations/recomposition on a real Android device (normal + saver modes); provider correction/Connect drift, buffering, pause/resume, local tracks and rapid track changes.
 - Centered follow / large forward and backward seek; manual scrolling and resume-follow; interlude placement at intro/explicit gaps.
 - Blurred artwork, bright-cover contrast, missing-art AMOLED black, API <31 blur fallback, insets/font scaling/landscape.
 - Full-screen expand + deliberate swipe-up + Back/close, accessibility and line seeking.
-- Loading/no-lyrics/unsynced/line-sync/word-sync/translation states, APK compilation and screenshots.
+- Loading/no-lyrics/unsynced/line-sync/word-sync/translation states and native screenshots (APK compilation now verified above).
 
 Reachability: play a lyrics-bearing track → open Now Playing → tap inline lyrics expand or flick up on artwork. No new navigation stack, test login or hidden gesture is required. `:host-cdp` can drive Spotify playback/position but **cannot capture native Compose**; an installed emulator/device must drive the existing player route for screenshots.

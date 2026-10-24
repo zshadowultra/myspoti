@@ -1,0 +1,35 @@
+{
+  "source_commit": "0115731ba2cfee1689dc8220fcd970b32c332f4f",
+  "command": "./gradlew --offline --no-daemon --max-workers=2 -Dorg.gradle.jvmargs=\"-Xmx1536m -Djava.net.preferIPv4Stack=true\" -I /tmp/lyrics-mirror-init.gradle :app:testDebugUnitTest :app:assembleDebug :api:test :api-spotify:test :host-cdp:test",
+  "java": "JDK 21",
+  "gradle": "9.7.1",
+  "android_sdk": "platforms;android-37.0",
+  "gate_exit": 0,
+  "modules": {
+    "app": {
+      "tests": 202,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "api-spotify": {
+      "tests": 85,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "host-cdp": {
+      "tests": 31,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 31
+    }
+  },
+  "api_task": "NO-SOURCE",
+  "api_spotify_task": "UP-TO-DATE (cached prior passing test result)",
+  "lyrics_tests": {
+    "LyricsTimingTest": 4,
+    "LyricsArtworkPixelsTest": 5
+  },
+  "note": "Built the working tree, including pre-existing uncommitted library work. No device/account session, no push, no CI run."
+}
