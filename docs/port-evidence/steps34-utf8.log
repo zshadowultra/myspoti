@@ -1,0 +1,11 @@
+base/host-android/src/main/kotlin/app/myspoti/host/android/ControlRelay.kt:265: max UTF-8/modified UTF-8=4330
+base/api-spotify/src/test/kotlin/app/myspoti/spotify/bridge/DeviceRegistrationTest.kt:16: max UTF-8/modified UTF-8=869
+base/api-spotify/src/main/kotlin/app/myspoti/spotify/bridge/Bridge.kt:89: max UTF-8/modified UTF-8=408
+base/api-spotify/src/test/kotlin/app/myspoti/spotify/SpotifyWritesTest.kt:54: max UTF-8/modified UTF-8=402
+base/api-spotify/src/test/kotlin/app/myspoti/spotify/PlaybackSnapshotTest.kt:19: max UTF-8/modified UTF-8=323
+Source: 5502 literals in 255 Kotlin files
+base/app/build/intermediates/built_in_kotlinc/debug/compileDebugKotlin/classes/com/music/spotui/ui/screens/PlayerScreenKt.class:constant#5527: modified UTF-8=13448
+base/app/build/intermediates/built_in_kotlinc/debug/compileDebugKotlin/classes/com/music/spotui/ui/components/PlayerSheetsKt.class:constant#4369: modified UTF-8=12233
+base/app/build/intermediates/built_in_kotlinc/debug/compileDebugKotlin/classes/com/music/spotui/ui/screens/ArtistScreenKt.class:constant#3966: modified UTF-8=11450
+Compiled: 285700 UTF8 constants in 2326 project classes (3 jars)
+PASS: all checked constants <= 60000 bytes

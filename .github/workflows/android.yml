@@ -38,8 +38,16 @@ jobs:
       - name: Bridge lesson mechanism tests (no account)
         run: node api-spotify/bridge-tests/lesson_mechanisms.cjs
 
+      - name: Kotlin string-size source guard
+        run: |
+          python3 -m unittest discover -s ../tools -p test_check_kotlin_string_size.py
+          python3 ../tools/check_kotlin_string_size.py
+
       - name: Unit tests
         run: ./gradlew testDebugUnitTest :api:test :api-spotify:test :host-cdp:test
+
+      - name: Compiled UTF8 constant guard
+        run: python3 ../tools/check_kotlin_string_size.py --compiled
 
       - name: Debug APK
         if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
