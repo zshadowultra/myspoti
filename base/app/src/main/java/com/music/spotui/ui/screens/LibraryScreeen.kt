@@ -285,43 +285,31 @@ fun LibraryScreen(navController: NavController) {
                 val hasDownloads = com.music.spotui.data.offline.OfflineStore.tracks.isNotEmpty() ||
                     com.music.spotui.data.offline.OfflineDownloader.requests.isNotEmpty()
                 val likedName = stringResource(R.string.collection_liked_songs_title)
-                // Liked Songs, Local Files and Downloaded stay on top; the rest follows the
-                // chosen sort. "Récents" is not here: it lives on the profile panel, as in the
-                // official app (it is the account's history, not a library folder).
-                val rootPinned = ((entries as? Response.Success)?.data ?: emptyList())
-                    .indexOfFirst { it.spotifyId == Api.HomeCache.LIKED_SONGS_ID } + 2 + (if (hasDownloads) 1 else 0)
-                val allEntries = ((entries as? Response.Success)?.data ?: emptyList()).map {
-                    if (it.spotifyId == Api.HomeCache.LIKED_SONGS_ID) it.copy(name = likedName, subtitle = "") else it
-                }.let { list ->
-                    // "Local Files" pinned right under Liked Songs, as in the official app.
-                    val local = com.music.spotui.data.entity.LibraryEntry(
-                        spotifyId = Api.HomeCache.LOCAL_FILES_ID, name = localName, subtitle = "",
-                        coverUri = "android.resource://${LocalContext.current.packageName}/drawable/local_files_cover", isPlaylist = true,
-                    )
-                    // "Downloaded" right after it, once something was downloaded.
-                    val downloads = com.music.spotui.data.entity.LibraryEntry(
-                        spotifyId = Api.HomeCache.DOWNLOADS_ID, name = downloadsName, subtitle = "", coverUri = "", isPlaylist = true,
-                    )
-                    val at = list.indexOfFirst { it.spotifyId == Api.HomeCache.LIKED_SONGS_ID } + 1
-                    // Then the phone's own playlists (files of this phone, not on Spotify).
-                    val localLists = com.music.spotui.data.local.LocalPlaylists.list().map { p ->
-                        com.music.spotui.data.entity.LibraryEntry(
-                            spotifyId = LOCAL_PLAYLIST_PREFIX + p.id, name = p.name,
-                            subtitle = localSubtitle, coverUri = "", isPlaylist = true,
-                        )
-                    }
-                    list.take(at) + local + (if (hasDownloads) listOf(downloads) else emptyList()) + localLists + list.drop(at)
-                }.let { list ->
-                    LibraryOrder.version
-                    LibraryOrder.arrange(list, LibraryOrder.sort, LibraryOrder.custom(LibraryOrder.ROOT), rootPinned)
+                val packageName = LocalContext.current.packageName
+                val labels = remember(likedName, localName, downloadsName, localSubtitle, packageName) {
+                    RootLibraryLabels(likedName, localName, downloadsName, localSubtitle,
+                        "android.resource://$packageName/drawable/local_files_cover")
                 }
-                val filteredEntries = if (searchQuery.isBlank()) allEntries
+                // Unrelated UI changes reuse the assembled/sorted root. Local playlist
+                // edits and order revisions remain observable inside the calculation.
+                val root by remember(entries, labels, hasDownloads) {
+                    androidx.compose.runtime.derivedStateOf {
+                        rootLibrary((entries as? Response.Success)?.data.orEmpty(), labels, hasDownloads)
+                    }
+                }
+                val allEntries = root.entries
+                val rootPinned = root.pinned
+                val filteredEntries = remember(allEntries, searchQuery) {
+                    if (searchQuery.isBlank()) allEntries
                     else allEntries.filter {
                         it.name.contains(searchQuery, ignoreCase = true) ||
                         it.subtitle.contains(searchQuery, ignoreCase = true)
                     }
-                val filteredArtists = if (searchQuery.isBlank()) followedArtists
+                }
+                val filteredArtists = remember(followedArtists, searchQuery) {
+                    if (searchQuery.isBlank()) followedArtists
                     else followedArtists.filter { it.name.contains(searchQuery, ignoreCase = true) }
+                }
                 if (gridView) LibraryGridScreen(PaddingValues(0.dp), filteredEntries, filteredArtists, navController,
                     reorderLevel = if (searchQuery.isBlank()) LibraryOrder.ROOT else null, pinned = rootPinned)
                 else SumUpLibraryScreen(PaddingValues(0.dp), filteredEntries, filteredArtists, navController,

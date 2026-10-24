@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.music.spotui.ui.screens.RootLibraryTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-10-24T02:21:19.923Z" hostname="htch-runtime" time="0.061">
+  <properties/>
+  <testcase name="downloadsAndMissingLikedKeepLocalEntriesPinned" classname="com.music.spotui.ui.screens.RootLibraryTest" time="0.014"/>
+  <testcase name="localCreateRenameDeleteInvalidateWithoutNetworkRefresh" classname="com.music.spotui.ui.screens.RootLibraryTest" time="0.04"/>
+  <testcase name="unchangedReadsReuseAssemblyWithoutLosingRows" classname="com.music.spotui.ui.screens.RootLibraryTest" time="0.001"/>
+  <testcase name="sortAndCustomOrderRevisionInvalidateDerivedRoot" classname="com.music.spotui.ui.screens.RootLibraryTest" time="0.003"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
