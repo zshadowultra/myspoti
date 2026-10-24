@@ -20,6 +20,14 @@ Added immutable `LyricsTiming` with precomputed word/syllable offsets, inferred 
 
 Verification: tests authored, **not executed** in this chunk. Per session instruction CI is the Kotlin/Android build gate; no local Java/Gradle invoked, no push. `.github/workflows/android.yml` already runs app unit tests + API tests + debug assembly. It cannot validate these local-only commits until the parent pushes them.
 
+## 2026-10-24 · chunk 3 / renderer connected
+
+Recovered the draft `BeautifulLyrics.kt` left by the preceding chunk and wired it into the full-screen route. Word/syllable geometry is cached from `TextLayoutResult` (including multi-row wraps); solid white text is clipped to each eased span width on draw frames. The list consumes derived active/interlude indices, not raw frame state, and uses stable timestamp/index keys. Unsynced text stays static/full white; line-sync switches the whole current line. Past lines settle to distance-dimmed white. Removed the full-screen unsynced banner/provider footer; retained translation/share and existing player controls.
+
+Motion: word sweep **smoothstep** `p*p*(3-2*p)` over each source/inferred start–end; line scale **1.035**, spring damping **0.82**, stiffness **240**; distance alpha spring damping **1.0**, stiffness **260**; centered scroll spring damping **0.9**, stiffness **180**, up to four geometry corrections with no distant-item teleport; manual drag suspends follow **3 s**. Distance alpha **1 / .64 / .44 / .28**. Instrumental gaps require an explicit source end and at least **4 s**, or an explicit silent row/intro. Three dots breathe on playback time over **2.25 s**, phase stagger **0.16 cycles**, radius **4 dp** and spacing **20 dp**.
+
+Checks so far: `git diff --check`; no local JVM/build/test or device run. Artwork and Solar controls are the next scoped step.
+
 ## Device-unverified (must remain pending)
 - Actual word/syllable sweep, wrapped words, punctuation, RTL/CJK layout and font clipping.
 - Frame pacing/allocations/recomposition on a real Android device (normal + saver modes); provider correction/Connect drift, buffering, pause/resume, local tracks and rapid track changes.

@@ -118,10 +118,10 @@ private fun paletteFor(lyrics: Lyrics?, accent: Color): LyricsPalette {
     return LyricsPalette(bg, text, Color.White)
 }
 
-/** Playback position, re-read on every frame while playing (smooth word highlight). */
+/** Playback position sampled on draw frames; SongPlayer already interpolates its anchor. */
 @Composable
 private fun rememberPosition(running: Boolean): () -> Long {
-    val frame = rememberFrameClock(running, fps = 30)
+    val frame = rememberFrameClock(running && !SongPlayer.isBuffering, fps = 60)
     return remember(frame) {
         { frame.value; SongPlayer.getCurrentPosition().coerceAtLeast(0L) }
     }
@@ -339,45 +339,34 @@ fun LyricsScreen(
             is LyricsViewModel.State.Loaded -> {
                 val l = state.lyrics
                 // Translation is requested by onTranslate; do not upload lyrics on screen entry.
-                val active by remember(l) { derivedStateOf { activeIndexFor(l, position()) } }
+                val timing = remember(l) { LyricsTiming(l, SongPlayer.getDuration()) }
+                val active by remember(timing) { derivedStateOf { timing.activeIndex(position()) } }
+                val interlude by remember(timing) { derivedStateOf { timing.interludeIndex(position()) } }
+                val focus = if (interlude >= 0) interlude else active
                 val listState = rememberLazyListState()
                 BoxWithConstraints(Modifier.weight(1f).fillMaxWidth()) {
-                    val offsetPx = with(LocalDensity.current) { (maxHeight * 0.28f).roundToPx() }
-                    AutoFollow(listState, active, offsetPx, enabled = l.synced)
+                    SpringLyricsFollow(listState, focus, enabled = l.synced)
                     LazyColumn(
                         state = listState,
                         modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(24.dp, 8.dp, 24.dp, 48.dp),
-                        verticalArrangement = Arrangement.spacedBy(14.dp),
+                        // Half-window padding lets even the first/last line reach the center.
+                        contentPadding = PaddingValues(horizontal = 28.dp, vertical = if (l.synced) maxHeight / 2 else 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
-                        if (!l.synced) item {
-                            Text(
-                                stringResource(R.string.lyrics_fullscreen_unsynced),
-                                color = palette.highlight.copy(alpha = 0.8f),
-                                fontSize = 13.sp,
-                                modifier = Modifier.padding(bottom = 8.dp),
-                            )
-                        }
-                        itemsIndexed(l.lines, key = { i, _ -> i }) { i, line ->
-                            LyricLineText(
+                        itemsIndexed(timing.lines, key = { i, line -> "${line.startMs}:$i" }) { i, line ->
+                            SweepingLyricLine(
                                 line = line,
-                                state = lineState(l, i, active),
-                                palette = palette,
-                                fontSize = 24.sp,
+                                current = i == active && interlude < 0,
+                                past = !l.synced || i < active || (interlude >= 0 && i == active),
+                                interlude = i == interlude,
+                                opacity = lyricOpacity(i, focus),
                                 position = position,
                                 translation = if (state.showTranslation) state.translations?.getOrNull(i) else null,
-                                onTap = if (l.synced) ({ jumpTo(line.timeMs) }) else null,
+                                modifier = if (l.synced) Modifier.clickable(
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    indication = null,
+                                ) { jumpTo(line.startMs) } else Modifier,
                             )
-                        }
-                        l.provider?.let { p ->
-                            item {
-                                Text(
-                                    stringResource(R.string.lyrics_credential_note, p),
-                                    color = palette.highlight.copy(alpha = 0.8f),
-                                    fontSize = 12.sp,
-                                    modifier = Modifier.padding(top = 24.dp),
-                                )
-                            }
                         }
                     }
                 }
