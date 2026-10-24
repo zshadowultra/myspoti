@@ -42,11 +42,6 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.OpenInFull
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -73,7 +68,7 @@ import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -97,12 +92,7 @@ import app.myspoti.engine.R
 import kotlinx.coroutines.delay
 import java.util.Locale
 
-/**
- * Spotify's lyrics, as the official Android app shows them: the lyrics card in the
- * Now Playing scroll and the full-screen view, both on the track's own colour
- * (color-lyrics `colors`). Sung and current lines are in the highlight colour,
- * upcoming lines in the text colour; tapping a line seeks to it.
- */
+/** Inline card uses provider colours; full-screen lyrics use solid white over dark artwork. */
 
 /** The three colours of a lyrics view: background, upcoming text, sung / current text. */
 private data class LyricsPalette(val background: Color, val text: Color, val highlight: Color)
@@ -262,7 +252,7 @@ private fun lineState(lyrics: Lyrics, index: Int, active: Int): Int = when {
     else -> 1
 }
 
-/** Full-screen lyrics (Spotify's "Lyrics" view). */
+/** Full-screen Beautiful Lyrics presentation; artwork is optional for local/missing covers. */
 @Composable
 fun LyricsScreen(
     title: String,
@@ -270,23 +260,23 @@ fun LyricsScreen(
     album: String,
     accentColor: Color,
     onClose: () -> Unit,
+    artworkUri: String? = null,
 ) {
     val context = LocalContext.current
     val vm: LyricsViewModel = viewModel()
     val state = rememberLyricsState(vm, title, artist)
-    val lyrics = (state as? LyricsViewModel.State.Loaded)?.lyrics
-    val palette = paletteFor(lyrics, accentColor)
-    val bg by animateColorAsState(palette.background, tween(300), label = "lyricsBg")
+    val palette = remember { LyricsPalette(Color.Black, Color.White.copy(alpha = 0.65f), Color.White) }
     val playing = com.music.spotui.di.Graph.currentSongState.playingState.value
     val position = rememberPosition(playing)
     val targetLanguage = getLyricTranslateLang(context).ifBlank { Locale.getDefault().language.ifBlank { "en" } }
     var menu by remember { mutableStateOf(false) }
 
+    Box(Modifier.fillMaxSize().background(Color.Black).testTag("lyrics-page")
+        .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null, onClick = {})) {
+    LyricsArtwork(artworkUri)
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(bg)
-            .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null, onClick = {})
             .statusBarsPadding()
             .navigationBarsPadding(),
     ) {
@@ -301,7 +291,7 @@ fun LyricsScreen(
                     interactionSource = remember { MutableInteractionSource() }, indication = null, onClick = onClose,
                 ),
             ) {
-                Icon(Icons.Default.KeyboardArrowDown, contentDescription = stringResource(R.string.lyrics_fullscreen_close_button_readout_value), tint = palette.highlight, modifier = Modifier.size(32.dp))
+                Icon(painterResource(R.drawable.ic_lyrics_close), contentDescription = stringResource(R.string.lyrics_fullscreen_close_button_readout_value), tint = palette.highlight, modifier = Modifier.size(32.dp))
             }
             Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)) {
                 Text(title, color = palette.highlight, fontSize = 14.sp, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
@@ -314,7 +304,7 @@ fun LyricsScreen(
                         interactionSource = remember { MutableInteractionSource() }, indication = null,
                     ) { menu = true },
                 ) {
-                    Icon(Icons.Default.MoreVert, contentDescription = stringResource(R.string.content_description_context_menu), tint = palette.highlight)
+                    Icon(painterResource(R.drawable.ic_lyrics_menu), contentDescription = stringResource(R.string.content_description_context_menu), tint = palette.highlight)
                 }
                 LyricsMenu(
                     expanded = menu,
@@ -348,7 +338,7 @@ fun LyricsScreen(
                     SpringLyricsFollow(listState, focus, enabled = l.synced)
                     LazyColumn(
                         state = listState,
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier.fillMaxSize().testTag("lyrics-lines"),
                         // Half-window padding lets even the first/last line reach the center.
                         contentPadding = PaddingValues(horizontal = 28.dp, vertical = if (l.synced) maxHeight / 2 else 16.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -384,6 +374,7 @@ fun LyricsScreen(
             }
         }
     }
+    }
 }
 
 @Composable
@@ -409,7 +400,7 @@ private fun LyricsMenu(
                     Text(stringResource(R.string.lyrics_extra_summary), fontSize = 12.sp, color = Color.Gray)
                 }
             },
-            trailingIcon = { if (extra) Icon(Icons.Default.Check, contentDescription = null) },
+            trailingIcon = { if (extra) Icon(painterResource(R.drawable.ic_lyrics_check), contentDescription = null) },
             onClick = {
                 extra = !extra
                 setLyricsExtraSources(context, extra)
@@ -453,8 +444,8 @@ private fun LyricsControls(
     val playing = com.music.spotui.di.Graph.currentSongState.playingState.value
     Column(Modifier.fillMaxWidth().padding(horizontal = 24.dp).padding(bottom = 8.dp)) {
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(bottom = 10.dp)) {
-            LyricsChip(stringResource(R.string.lyrics_fullscreen_chip_label_share), R.drawable.ic_share, false, false, palette, onShare)
-            if (showTranslate) LyricsChip(stringResource(R.string.lyrics_fullscreen_chip_label_translate), R.drawable.ic_translate_lyrics, translationActive, translating, palette, onTranslate)
+            LyricsChip(stringResource(R.string.lyrics_fullscreen_chip_label_share), R.drawable.ic_lyrics_share, false, false, palette, onShare)
+            if (showTranslate) LyricsChip(stringResource(R.string.lyrics_fullscreen_chip_label_translate), R.drawable.ic_lyrics_translate, translationActive, translating, palette, onTranslate)
         }
         LyricsSeekBar(
             progress = { if (durationMs > 0) (position().toFloat() / durationMs).coerceIn(0f, 1f) else 0f },
@@ -476,8 +467,8 @@ private fun LyricsControls(
                 .background(palette.highlight)
                 .pressable(0.92f) { if (SongPlayer.isPlaying()) SongPlayer.pause() else SongPlayer.play() },
         ) {
-            com.music.spotui.ui.components.PlayPauseIcon(
-                playing = playing,
+            Icon(
+                painter = painterResource(if (playing) R.drawable.ic_lyrics_pause else R.drawable.ic_lyrics_play),
                 contentDescription = if (playing) stringResource(R.string.content_description_pause_button) else stringResource(R.string.content_description_play_button),
                 tint = palette.background,
                 modifier = Modifier.size(30.dp),
@@ -565,11 +556,11 @@ fun InlineLyrics(
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.weight(1f),
             )
-            CardIconButton(palette, stringResource(R.string.lyrics_share), { Icon(painterResource(R.drawable.ic_share), null, tint = palette.highlight, modifier = Modifier.size(16.dp)) }) {
+            CardIconButton(palette, stringResource(R.string.lyrics_share), { Icon(painterResource(R.drawable.ic_lyrics_share), null, tint = palette.highlight, modifier = Modifier.size(16.dp)) }) {
                 shareLyrics(context, title, artist, l.lines.getOrNull(active)?.text)
             }
             Spacer(Modifier.width(8.dp))
-            CardIconButton(palette, stringResource(R.string.lyrics_fullscreen), { Icon(Icons.Default.OpenInFull, null, tint = palette.highlight, modifier = Modifier.size(16.dp)) }, onExpand)
+            CardIconButton(palette, stringResource(R.string.lyrics_fullscreen), { Icon(painterResource(R.drawable.ic_lyrics_expand), null, tint = palette.highlight, modifier = Modifier.size(16.dp)) }, onExpand)
         }
         Spacer(Modifier.height(12.dp))
         LazyColumn(

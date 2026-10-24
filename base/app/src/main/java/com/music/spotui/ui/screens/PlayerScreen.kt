@@ -588,7 +588,8 @@ fun PlayerScreen(navController: NavController) {
                 artist = songSinger,
                 album = playerViewModel.currentSongAlbum.value,
                 accentColor = dominentColor,
-                onClose = { showLyrics = false }
+                onClose = { showLyrics = false },
+                artworkUri = songCoverUri,
             )
         }
         // Full-screen clip: the video over everything, turned sideways, with its own controls.

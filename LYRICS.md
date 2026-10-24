@@ -28,6 +28,14 @@ Motion: word sweep **smoothstep** `p*p*(3-2*p)` over each source/inferred startâ
 
 Checks so far: `git diff --check`; no local JVM/build/test or device run. Artwork and Solar controls are the next scoped step.
 
+## 2026-10-24 Â· chunk 4 / stranded presentation recovered
+
+Reviewed the preceding session's in-flight `LyricsScreen`, `PlayerScreen`, artwork draft and eight Solar Bold vectors; they are now a scoped commit rather than stranded work. Player passes the current cover URI, full-screen foreground is solid white, the backing surface is AMOLED black and the draft image treatment uses 48 dp platform blur plus a flat 68% black overlay (no gradients). The tiny decode alone on API <31 is only a provisional softening, **not a verified heavy-blur fallback**; a real off-main bitmap blur is the next step. Figtree/AppSans unchanged.
+
+Solar close/menu/expand/share/translation/play/pause/check use preserved 480 Design paths and attribution in the vector headers + `docs/assets/lyrics-solar-icons.json`; reproducible conversion is `tools/generate_lyrics_icons.py` and preserves each path's fill rule. Added `lyrics-page` and `lyrics-lines` test tags for native automation. Existing navigation, translation/share and playback actions retained. Unrelated library files/briefs are not included.
+
+Checks: generator executed, vectors parsed as XML, `git diff --check`. No Android build/device result claimed for this recovery commit.
+
 ## Device-unverified (must remain pending)
 - Actual word/syllable sweep, wrapped words, punctuation, RTL/CJK layout and font clipping.
 - Frame pacing/allocations/recomposition on a real Android device (normal + saver modes); provider correction/Connect drift, buffering, pause/resume, local tracks and rapid track changes.
