@@ -15,6 +15,8 @@ data class LyricLine(
     val timeMs: Long,
     val text: String,
     val words: List<LyricWord>? = null,
+    /** Optional source end; needed to distinguish held vocals from instrumental gaps. */
+    val endMs: Long? = null,
 )
 
 /** Spotify's per-track lyrics colours (color-lyrics `colors`), ARGB ints. */
