@@ -254,6 +254,7 @@ fun PodcastPlayerScreen(navController: NavController) {
             SpotifySeekBar(
                 fraction = { fraction },
                 onDrag = { f -> drag = f },
+                onCancel = { drag = null },
                 onRelease = {
                     val f = drag ?: return@SpotifySeekBar
                     drag = null

@@ -488,23 +488,19 @@ fun PlayerScreen(navController: NavController) {
                 )
 
                 // Seek bar: follows the finger while dragging, seeks once on release.
-                var isDragging by remember { mutableStateOf(false) }
-                var dragValue by remember { mutableStateOf(0f) }
+                val seekPreview = remember(np.uri) { SeekPreview() }
                 val duration = mv.duration()
                 SpotifySeekBar(
                     fraction = {
                         frame.value // redraw each frame
-                        if (isDragging) dragValue else {
+                        seekPreview.fraction ?: run {
                             val d = mv.duration()
                             if (d > 0) (mv.position().toFloat() / d).coerceIn(0f, 1f) else 0f
                         }
                     },
-                    onDrag = { isDragging = true; dragValue = it },
-                    onRelease = {
-                        val target = (dragValue * mv.duration()).toLong()
-                        mv.seekTo(target)
-                        isDragging = false
-                    },
+                    onDrag = { seekPreview.drag(it, mv.duration()) },
+                    onRelease = { seekPreview.release()?.let { mv.seekTo(it) } },
+                    onCancel = { seekPreview.cancel() },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 24.dp)
@@ -516,7 +512,7 @@ fun PlayerScreen(navController: NavController) {
                         .padding(horizontal = 24.dp),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    ElapsedLabel(songPlayingState, if (isDragging) (dragValue * duration).toLong() else null) {
+                    ElapsedLabel(songPlayingState, seekPreview.fraction?.let { (it * duration).toLong() }) {
                         playerViewModel.formatDuration(it)
                     }
                     Text(
@@ -957,8 +953,12 @@ fun SpotifySeekBar(
     fraction: () -> Float,
     onDrag: (Float) -> Unit,
     onRelease: () -> Unit,
+    onCancel: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val drag = androidx.compose.runtime.rememberUpdatedState(onDrag)
+    val release = androidx.compose.runtime.rememberUpdatedState(onRelease)
+    val cancel = androidx.compose.runtime.rememberUpdatedState(onCancel)
     var widthPx by remember { mutableStateOf(1f) }
     val seekDescription = stringResource(R.string.playback_seek_description)
     // Read only in semantics: playback ticks do not recompose the player.
@@ -984,16 +984,16 @@ fun SpotifySeekBar(
             }
             .onSizeChanged { widthPx = it.width.toFloat().coerceAtLeast(1f) }
             .pointerInput(Unit) {
-                detectTapGestures { o -> onDrag((o.x / widthPx).coerceIn(0f, 1f)); onRelease() }
+                detectTapGestures { o -> drag.value((o.x / widthPx).coerceIn(0f, 1f)); release.value() }
             }
             .pointerInput(Unit) {
                 detectHorizontalDragGestures(
-                    onDragStart = { o -> onDrag((o.x / widthPx).coerceIn(0f, 1f)) },
-                    onDragEnd = { onRelease() },
-                    onDragCancel = { onRelease() },
+                    onDragStart = { o -> drag.value((o.x / widthPx).coerceIn(0f, 1f)) },
+                    onDragEnd = { release.value() },
+                    onDragCancel = { cancel.value() },
                 ) { change, _ ->
                     change.consume()
-                    onDrag((change.position.x / widthPx).coerceIn(0f, 1f))
+                    drag.value((change.position.x / widthPx).coerceIn(0f, 1f))
                 }
             }
     ) {

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.music.spotui.ui.screens.SeekPreviewTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-10-24T14:04:23.646Z" hostname="htch-runtime" time="0.006">
+  <properties/>
+  <testcase name="manyMovesCommitOnceWithOriginalDuration" classname="com.music.spotui.ui.screens.SeekPreviewTest" time="0.005"/>
+  <testcase name="invalidInputAndUnknownDurationNeverProduceAnInvalidSeek" classname="com.music.spotui.ui.screens.SeekPreviewTest" time="0.0"/>
+  <testcase name="cancellationDiscardsTargetAndNextGestureCapturesFreshDuration" classname="com.music.spotui.ui.screens.SeekPreviewTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

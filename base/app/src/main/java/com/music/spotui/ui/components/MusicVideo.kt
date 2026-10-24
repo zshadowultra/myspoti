@@ -224,6 +224,7 @@ fun VideoFullscreenOverlay() {
                         },
                         onDrag = { touch++; dragging = true; dragValue = it },
                         onRelease = { MusicVideoController.seekTo((dragValue * MusicVideoController.duration()).toLong()); dragging = false },
+                        onCancel = { dragging = false },
                         modifier = Modifier.fillMaxWidth(),
                     )
                     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth().height(48.dp)) {
